@@ -1,0 +1,26 @@
+# PrahariPay Backend Dependencies
+
+# Web framework
+fastapi
+uvicorn[standard]
+pydantic
+
+# Database
+sqlalchemy
+aiosqlite
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==4.0.1
+
+# Cryptography (ECDSA signing/verification)
+cryptography
+
+# Testing
+pytest
+pytest-asyncio
+httpx
+
+# Utilities
+python-dotenv

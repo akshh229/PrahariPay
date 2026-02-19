@@ -13,6 +13,8 @@ Secure peer-to-peer offline transactions
 
 AI-powered conflict resolution during sync
 
+AI Spend Analyzer for intelligent spending insights and budget intelligence
+
 Guardian-based social recovery (no seed phrases)
 
 Gossip-style transaction redundancy
@@ -65,7 +67,11 @@ Users recover wallets via guardian quorum (e.g., 3-of-5 approvals). No seed phra
 
 Transactions propagate to nearby peers, ensuring survivability even if devices are destroyed.
 
-🔄 Smart Sync Optimization
+� AI Spend Analyzer
+
+Intelligent spending analysis engine that categorizes transactions, detects spending patterns, provides budget recommendations, and alerts users to unusual spending behavior — all powered by on-device + server-side AI.
+
+�🔄 Smart Sync Optimization
 
 AI determines optimal sync timing based on battery, signal, and pending transactions.
 
@@ -82,6 +88,7 @@ FastAPI Backend
  ├── Ledger Reconciliation Engine
  ├── Conflict Resolution Intelligence
  ├── Anomaly Detection Engine
+ ├── AI Spend Analyzer Engine
  ├── Guardian Recovery Manager
  ├── Peer Cache (Redundancy)
  ├── Credit Adjustment Engine
@@ -165,7 +172,25 @@ No single point of failure
 
 Eventual consistency
 
-6️⃣ Network-Aware Smart Sync
+6️⃣ AI Spend Analyzer
+
+Per-user and per-merchant intelligent spending analysis:
+
+Automatic transaction categorization (food, transport, utilities, etc.)
+
+Daily / weekly / monthly spend summaries with trend detection
+
+Budget threshold alerts and overspend warnings
+
+Peer comparison — anonymous spend benchmarking
+
+Merchant-side revenue analytics and customer spend patterns
+
+Anomalous spend detection (sudden spikes, unusual categories)
+
+Works offline: local analysis on-device, enriched after sync
+
+7️⃣ Network-Aware Smart Sync
 
 Client-side logic determines:
 
@@ -214,6 +239,8 @@ Risk scoring logic
 
 Pattern detection rules
 
+Spend Analyzer (categorization, trends, budgets)
+
 Upgrade path to ML models
 
 🚀 Getting Started
@@ -245,11 +272,15 @@ View AI risk classification
 
 Simulate conflict
 
+View AI Spend Analyzer insights and category breakdown
+
 Trigger guardian recovery
 
 Restore wallet access
 
 🔭 Future Roadmap
+
+AI Spend Analyzer v2 — ML-based category prediction and personalized budget coaching
 
 Real NFC pairing
 
@@ -259,7 +290,7 @@ Blockchain smart contract wallet
 
 Federated learning fraud models
 
-On-device ML (TensorFlow Lite)
+On-device ML (TensorFlow Lite) for spend predictions
 
 Zero-knowledge recovery proofs
 
@@ -289,6 +320,8 @@ Currently built as a solo project.
 Future collaboration welcome for:
 
 ML model upgrades
+
+AI Spend Analyzer enhancements (NLP categorization, forecasting)
 
 Cryptographic hardening
 
