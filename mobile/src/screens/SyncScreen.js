@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Animated, Easing } from 'react-native';
 import { getTransactions, updateTransaction } from '../services/ledgerService';
 import { getSyncErrorMessage, syncTransactions } from '../services/syncService';
+import { API_BASE_URL } from '../services/apiConfig';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
 import colors from '../theme/colors';
@@ -13,6 +14,12 @@ export default function SyncScreen() {
     const [showSuccessAnim, setShowSuccessAnim] = useState(false);
     const successScale = useState(new Animated.Value(0.8))[0];
     const successOpacity = useState(new Animated.Value(0))[0];
+
+    const backendMode = (() => {
+        if (API_BASE_URL.includes('onrender.com')) return 'Render';
+        if (API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1') || API_BASE_URL.includes('10.0.2.2')) return 'Local';
+        return 'LAN / Custom';
+    })();
 
     React.useEffect(() => {
         const loadPending = async () => {
@@ -104,6 +111,16 @@ export default function SyncScreen() {
                 <Text style={styles.summaryHint}>Keep this near zero for stronger trust continuity.</Text>
             </View>
 
+            <View style={styles.backendCard}>
+                <View style={styles.backendHeaderRow}>
+                    <Text style={styles.backendTitle}>Connected Backend</Text>
+                    <Text style={styles.backendMode}>{backendMode}</Text>
+                </View>
+                <Text style={styles.backendUrl} numberOfLines={2}>
+                    {API_BASE_URL}
+                </Text>
+            </View>
+
             <AnimatedPressable
                 style={[styles.syncBtn, syncing && styles.syncBtnDisabled]}
                 onPress={handleSync}
@@ -172,6 +189,31 @@ const styles = StyleSheet.create({
     summaryLabel: { color: colors.text.secondary, fontSize: 11, fontWeight: '700' },
     summaryValue: { color: colors.text.primary, fontSize: 28, fontWeight: '800', marginTop: 4 },
     summaryHint: { color: colors.text.muted, fontSize: 11 },
+    backendCard: {
+        backgroundColor: colors.bg.card,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.border.subtle,
+        padding: 12,
+        marginBottom: 14,
+    },
+    backendHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 6,
+    },
+    backendTitle: { color: colors.text.secondary, fontSize: 11, fontWeight: '700' },
+    backendMode: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: colors.brand.primary,
+        backgroundColor: '#f8ecdf',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 999,
+    },
+    backendUrl: { color: colors.text.primary, fontSize: 12, lineHeight: 16 },
     syncBtn: {
         backgroundColor: colors.brand.primary,
         borderRadius: 12,

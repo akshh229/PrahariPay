@@ -172,6 +172,8 @@ export default function SpendAnalyzerPage() {
     return `conic-gradient(${stops.join(", ")})`;
   };
 
+  const breakdownCount = summary?.breakdown?.length || 0;
+
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
@@ -230,7 +232,11 @@ export default function SpendAnalyzerPage() {
                 <span className="material-symbols-outlined text-[var(--color-primary)] text-lg">trending_up</span>
               </div>
               {/* Bar Chart */}
-              <div className="flex items-end gap-3 h-40 overflow-x-auto pb-1">
+              <div
+                className={`flex items-end gap-3 h-40 overflow-x-auto pb-1 ${
+                  breakdownCount <= 2 ? "justify-center" : ""
+                }`}
+              >
                 {(summary?.breakdown || []).map((cat, i) => (
                   <div key={i} className="min-w-[72px] max-w-[96px] w-full flex flex-col items-center gap-1">
                     <span className="text-[10px] text-[var(--color-text-secondary)]">₹{cat.amount.toFixed(0)}</span>

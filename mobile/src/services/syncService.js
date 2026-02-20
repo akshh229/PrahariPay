@@ -1,11 +1,14 @@
 import axios from 'axios';
 import { API_BASE_URL, API_TIMEOUT_MS } from './apiConfig';
 
+const DEV_FALLBACK_BASE_URLS = __DEV__
+    ? ['http://127.0.0.1:8000/api/v1', 'http://10.0.2.2:8000/api/v1']
+    : [];
+
 const candidateBaseUrls = Array.from(
     new Set([
         API_BASE_URL,
-        'http://127.0.0.1:8000/api/v1',
-        'http://10.0.2.2:8000/api/v1',
+        ...DEV_FALLBACK_BASE_URLS,
     ].filter(Boolean))
 );
 
