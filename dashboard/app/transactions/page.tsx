@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   fetchAnomalies,
   fetchLedger,
+  fetchProfile,
   fetchMerchantTransactions,
   type AnomalyReport,
   type Transaction,
@@ -15,10 +16,37 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<Transaction | null>(null);
-  const [merchantId] = useState(
+  const [merchantId, setMerchantId] = useState(
     () => (typeof window !== "undefined" && localStorage.getItem("user_id")) || "merchant_001"
   );
   const [anomalies, setAnomalies] = useState<AnomalyReport[]>([]);
+
+  useEffect(() => {
+    const resolveUser = async () => {
+      if (typeof window === "undefined") return;
+
+      const token = localStorage.getItem("access_token");
+      const localUserId = localStorage.getItem("user_id");
+
+      if (token) {
+        const profile = await fetchProfile();
+        if (profile?.id) {
+          localStorage.setItem("user_id", profile.id);
+          setMerchantId(profile.id);
+          return;
+        }
+      }
+
+      if (localUserId) {
+        setMerchantId(localUserId);
+        return;
+      }
+
+      setMerchantId("merchant_001");
+    };
+
+    resolveUser();
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -88,6 +116,9 @@ export default function TransactionsPage() {
               <h1 className="text-xl font-bold">Transaction Risk Monitor</h1>
               <p className="text-xs text-[var(--color-text-secondary)] mt-1">
                 Real-time AI fraud analysis • {transactions.length} transactions
+              </p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mt-1">
+                Viewing account: {merchantId}
               </p>
             </div>
             <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Animated, Easing } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTransactions, updateTransaction } from '../services/ledgerService';
 import { getSyncErrorMessage, syncTransactions } from '../services/syncService';
 import { API_BASE_URL } from '../services/apiConfig';
@@ -12,6 +13,7 @@ export default function SyncScreen() {
     const [results, setResults] = useState(null);
     const [pendingCount, setPendingCount] = useState(0);
     const [showSuccessAnim, setShowSuccessAnim] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState('unknown');
     const successScale = useState(new Animated.Value(0.8))[0];
     const successOpacity = useState(new Animated.Value(0))[0];
 
@@ -26,7 +28,12 @@ export default function SyncScreen() {
             const allTx = await getTransactions();
             setPendingCount(allTx.filter((tx) => !tx.synced).length);
         };
+        const loadUser = async () => {
+            const uid = await AsyncStorage.getItem('user_id');
+            setCurrentUserId(uid || 'unknown');
+        };
         loadPending();
+        loadUser();
     }, [results]);
 
     const playSyncSuccessAnimation = () =>
@@ -63,6 +70,46 @@ export default function SyncScreen() {
             });
         });
 
+    const runSyncBatch = async (transactions, opts = { announceEmpty: true }) => {
+        if (!transactions || transactions.length === 0) {
+            if (opts.announceEmpty) {
+                Alert.alert('All Synced', 'No pending transactions to sync.');
+            }
+            return;
+        }
+
+        const response = await syncTransactions(transactions);
+        if (response && response.results) {
+            for (const result of response.results) {
+                await updateTransaction(result.transaction_id, {
+                    synced: true,
+                    risk_score: result.risk_score,
+                    classification: result.classification,
+                });
+            }
+            setResults(response.results);
+            const remaining = Math.max(0, pendingCount - response.results.length);
+            setPendingCount(remaining);
+            await playSyncSuccessAnimation();
+            Alert.alert('✅ Sync Complete', `${response.results.length} transactions synced.`);
+        }
+    };
+
+    const handleResyncRecent = async () => {
+        setSyncing(true);
+        try {
+            const allTx = await getTransactions();
+            const recent = [...allTx]
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                .slice(0, 50);
+
+            await runSyncBatch(recent, { announceEmpty: true });
+        } catch (e) {
+            Alert.alert('Resync Failed', getSyncErrorMessage(e));
+        }
+        setSyncing(false);
+    };
+
     const handleSync = async () => {
         setSyncing(true);
         try {
@@ -70,27 +117,19 @@ export default function SyncScreen() {
             const unsynced = allTx.filter((tx) => !tx.synced);
 
             if (unsynced.length === 0) {
-                Alert.alert('All Synced', 'No pending transactions to sync.');
+                Alert.alert(
+                    'No Pending Transactions',
+                    'Everything is marked synced locally. If older sync went to a different backend, resync recent transactions to this backend now.',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Resync Recent', onPress: () => { void handleResyncRecent(); } },
+                    ]
+                );
                 setSyncing(false);
                 return;
             }
 
-            const response = await syncTransactions(unsynced);
-
-            if (response && response.results) {
-                // Update local ledger with AI results
-                for (const result of response.results) {
-                    await updateTransaction(result.transaction_id, {
-                        synced: true,
-                        risk_score: result.risk_score,
-                        classification: result.classification,
-                    });
-                }
-                setResults(response.results);
-                setPendingCount(Math.max(0, pendingCount - response.results.length));
-                await playSyncSuccessAnimation();
-                Alert.alert('✅ Sync Complete', `${response.results.length} transactions synced.`);
-            }
+            await runSyncBatch(unsynced, { announceEmpty: false });
         } catch (e) {
             Alert.alert('Sync Failed', getSyncErrorMessage(e));
         }
@@ -119,6 +158,7 @@ export default function SyncScreen() {
                 <Text style={styles.backendUrl} numberOfLines={2}>
                     {API_BASE_URL}
                 </Text>
+                <Text style={styles.backendUser}>Account: {currentUserId}</Text>
             </View>
 
             <AnimatedPressable
@@ -214,6 +254,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
     },
     backendUrl: { color: colors.text.primary, fontSize: 12, lineHeight: 16 },
+    backendUser: { color: colors.text.secondary, fontSize: 11, marginTop: 6 },
     syncBtn: {
         backgroundColor: colors.brand.primary,
         borderRadius: 12,
