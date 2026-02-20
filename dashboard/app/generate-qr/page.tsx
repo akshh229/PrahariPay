@@ -99,16 +99,16 @@ export default function GenerateQRPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-800">
+      <div className="px-6 py-4 border-b border-(--color-border-subtle) bg-(--color-bg-app)">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Dynamic QR Generator</h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-(--color-text-secondary) mt-1">
               Generate cryptographically signed QR codes for secure offline payments
             </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#e9f8ef] text-[#1f8d52] text-xs border border-[#cde8d8]">
+            <span className="w-2 h-2 rounded-full bg-[#1f8d52] animate-pulse" />
             System Online
           </div>
         </div>
@@ -116,25 +116,25 @@ export default function GenerateQRPage() {
 
       {/* Content Grid */}
       <div className="flex-1 p-6">
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-6 max-w-[1400px] w-full mx-auto">
           {/* Left: Transaction Form */}
           <div className="col-span-12 lg:col-span-5 space-y-5">
-            <div className="bg-[#1b2427]/70 backdrop-blur-xl rounded-xl border border-slate-800 p-6">
+            <div className="pp-card rounded-2xl p-6">
               <h3 className="text-sm font-semibold mb-5">Transaction Details</h3>
 
               {/* Amount */}
               <div className="mb-4">
-                <label className="text-xs text-slate-400 mb-1.5 block">Amount (₹)</label>
+                <label className="text-xs text-(--color-text-secondary) mb-1.5 block">Amount (₹)</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) text-lg">
                     currency_rupee
                   </span>
                   <input
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#111618] border border-slate-800 text-white text-sm
-                      focus:border-[#3abff8]/50 focus:ring-1 focus:ring-[#3abff8]/20 outline-none transition"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-(--color-bg-muted) border border-(--color-border-subtle) text-(--color-text-primary) text-sm
+                      focus:border-[#d7b68d] focus:ring-1 focus:ring-[#f4dfc4] outline-none transition"
                     placeholder="0.00"
                   />
                 </div>
@@ -142,17 +142,17 @@ export default function GenerateQRPage() {
 
               {/* Invoice ID */}
               <div className="mb-4">
-                <label className="text-xs text-slate-400 mb-1.5 block">Invoice ID / Reference</label>
+                <label className="text-xs text-(--color-text-secondary) mb-1.5 block">Invoice ID / Reference</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) text-lg">
                     tag
                   </span>
                   <input
                     type="text"
                     value={invoiceId}
                     onChange={(e) => setInvoiceId(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#111618] border border-slate-800 text-white text-sm
-                      focus:border-[#3abff8]/50 focus:ring-1 focus:ring-[#3abff8]/20 outline-none transition"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-(--color-bg-muted) border border-(--color-border-subtle) text-(--color-text-primary) text-sm
+                      focus:border-[#d7b68d] focus:ring-1 focus:ring-[#f4dfc4] outline-none transition"
                     placeholder="INV-2023-XXXX"
                   />
                 </div>
@@ -160,29 +160,29 @@ export default function GenerateQRPage() {
 
               {/* Note */}
               <div className="mb-4">
-                <label className="text-xs text-slate-400 mb-1.5 block">Customer Note</label>
+                <label className="text-xs text-(--color-text-secondary) mb-1.5 block">Customer Note</label>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-2.5 rounded-lg bg-[#111618] border border-slate-800 text-white text-sm resize-none
-                    focus:border-[#3abff8]/50 focus:ring-1 focus:ring-[#3abff8]/20 outline-none transition"
+                  className="w-full px-4 py-2.5 rounded-lg bg-(--color-bg-muted) border border-(--color-border-subtle) text-(--color-text-primary) text-sm resize-none
+                    focus:border-[#d7b68d] focus:ring-1 focus:ring-[#f4dfc4] outline-none transition"
                   placeholder="Optional payment note..."
                 />
               </div>
 
               {/* Lock Amount Toggle */}
-              <div className="flex items-center justify-between py-3 border-t border-slate-800">
+              <div className="flex items-center justify-between py-3 border-t border-(--color-border-subtle)">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-slate-400 text-lg">lock</span>
-                  <span className="text-xs text-slate-300">Lock Amount</span>
+                  <span className="material-symbols-outlined text-(--color-text-secondary) text-lg">lock</span>
+                  <span className="text-xs text-(--color-text-secondary)">Lock Amount</span>
                 </div>
                 <button
                   onClick={() => setLockAmount(!lockAmount)}
                   title="Toggle lock amount"
                   aria-label="Toggle lock amount"
                   className={`w-10 h-5 rounded-full transition-all flex items-center ${
-                    lockAmount ? "bg-[#3abff8] justify-end" : "bg-slate-700 justify-start"
+                    lockAmount ? "bg-(--color-primary) justify-end" : "bg-[#ccc3b3] justify-start"
                   }`}
                 >
                   <div className="w-4 h-4 rounded-full bg-white mx-0.5" />
@@ -193,13 +193,13 @@ export default function GenerateQRPage() {
               <div className="flex gap-3 mt-5">
                 <button
                   onClick={handleReset}
-                  className="flex-1 py-2.5 rounded-lg bg-[#111618] text-slate-400 text-xs font-semibold border border-slate-800 hover:text-white transition"
+                  className="flex-1 py-2.5 rounded-lg bg-(--color-bg-muted) text-(--color-text-secondary) text-xs font-semibold border border-(--color-border-subtle) hover:text-(--color-text-primary) transition"
                 >
                   Reset
                 </button>
                 <button
                   onClick={handleGenerate}
-                  className="flex-1 py-2.5 rounded-lg bg-[#3abff8] text-[#111618] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#3abff8]/90 transition shadow-lg shadow-[#3abff8]/20"
+                  className="flex-1 py-2.5 rounded-lg pp-btn-primary text-xs font-bold flex items-center justify-center gap-2 transition"
                 >
                   <span className="material-symbols-outlined text-sm">bolt</span>
                   Generate QR
@@ -208,11 +208,11 @@ export default function GenerateQRPage() {
             </div>
 
             {/* Offline Info */}
-            <div className="rounded-xl border border-dashed border-slate-700 p-4 flex items-start gap-3">
-              <span className="material-symbols-outlined text-[#3abff8] text-lg mt-0.5">wifi_off</span>
+            <div className="rounded-xl border border-dashed border-(--color-border-subtle) bg-(--color-bg-card) p-4 flex items-start gap-3">
+              <span className="material-symbols-outlined text-(--color-primary) text-lg mt-0.5">wifi_off</span>
               <div>
                 <p className="text-xs font-semibold">Offline-First Protocol</p>
-                <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                <p className="text-[10px] text-(--color-text-secondary) mt-1 leading-relaxed">
                   QR codes are cryptographically signed and work without internet.
                   Transactions sync automatically when connectivity returns.
                 </p>
@@ -222,14 +222,14 @@ export default function GenerateQRPage() {
 
           {/* Right: QR Preview */}
           <div className="col-span-12 lg:col-span-7">
-            <div className="bg-[#1b2427]/70 backdrop-blur-xl rounded-xl border border-slate-800 overflow-hidden">
+            <div className="pp-card rounded-2xl overflow-hidden">
               {/* Preview Header */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-(--color-border-subtle)">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold">Live Preview</span>
                   {qrData && (
-                    <span className="flex items-center gap-1 text-[10px] text-emerald-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="flex items-center gap-1 text-[10px] text-[#1f8d52]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#1f8d52] animate-pulse" />
                       Ready
                     </span>
                   )}
@@ -238,17 +238,17 @@ export default function GenerateQRPage() {
                   <div className="flex gap-1.5">
                     <button
                       onClick={handleDownloadQR}
-                      className="w-7 h-7 rounded-md bg-[#111618] border border-slate-800 flex items-center justify-center hover:border-[#3abff8]/30 transition"
+                      className="w-7 h-7 rounded-md bg-(--color-bg-muted) border border-(--color-border-subtle) flex items-center justify-center hover:border-[#d7b68d] transition"
                       title="Download QR"
                     >
-                      <span className="material-symbols-outlined text-slate-400 text-sm">download</span>
+                      <span className="material-symbols-outlined text-(--color-text-secondary) text-sm">download</span>
                     </button>
                     <button
                       onClick={handleShare}
-                      className="w-7 h-7 rounded-md bg-[#111618] border border-slate-800 flex items-center justify-center hover:border-[#3abff8]/30 transition"
+                      className="w-7 h-7 rounded-md bg-(--color-bg-muted) border border-(--color-border-subtle) flex items-center justify-center hover:border-[#d7b68d] transition"
                       title="Share"
                     >
-                      <span className="material-symbols-outlined text-slate-400 text-sm">share</span>
+                      <span className="material-symbols-outlined text-(--color-text-secondary) text-sm">share</span>
                     </button>
                   </div>
                 )}
@@ -263,32 +263,32 @@ export default function GenerateQRPage() {
                         value={qrData}
                         size={220}
                         bgColor="#ffffff"
-                        fgColor="#111618"
+                        fgColor="#1e1d1a"
                         level="H"
                       />
                     </div>
                     <p className="text-sm font-semibold mt-4">
                       PrahariPay Invoice #{lastInvoiceRef}
                     </p>
-                    <p className="text-xl font-bold text-[#3abff8] mt-1">
+                    <p className="text-xl font-bold text-(--color-primary) mt-1">
                       ₹{parseFloat(amount || "0").toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
                   </>
                 ) : (
                   <div className="py-16 text-center">
-                    <span className="material-symbols-outlined text-slate-700 text-6xl mb-3">qr_code_2</span>
-                    <p className="text-sm text-slate-500">Enter details and click Generate</p>
-                    <p className="text-[10px] text-slate-600 mt-1">QR preview will appear here</p>
+                    <span className="material-symbols-outlined text-(--color-text-muted) text-6xl mb-3">qr_code_2</span>
+                    <p className="text-sm text-(--color-text-secondary)">Enter details and click Generate</p>
+                    <p className="text-[10px] text-(--color-text-muted) mt-1">QR preview will appear here</p>
                   </div>
                 )}
               </div>
 
               {/* Payload JSON */}
               {qrData && (
-                <div className="border-t border-slate-800">
+                <div className="border-t border-(--color-border-subtle)">
                   <button
                     onClick={() => setShowPayload(!showPayload)}
-                    className="w-full px-5 py-2.5 flex items-center justify-between text-xs text-slate-400 hover:text-white transition"
+                    className="w-full px-5 py-2.5 flex items-center justify-between text-xs text-(--color-text-secondary) hover:text-(--color-primary) transition"
                   >
                     <span className="font-mono">payload.json</span>
                     <span className="material-symbols-outlined text-sm">
@@ -297,10 +297,10 @@ export default function GenerateQRPage() {
                   </button>
                   {showPayload && (
                     <div className="px-5 pb-4">
-                      <pre className="bg-[#111618] rounded-lg p-4 text-[11px] font-mono text-slate-300 overflow-x-auto border border-slate-800">
+                      <pre className="bg-(--color-bg-muted) rounded-lg p-4 text-[11px] font-mono text-(--color-text-secondary) overflow-x-auto border border-(--color-border-subtle)">
                         {parsedPayload ? formatJSON(parsedPayload) : "{}"}
                       </pre>
-                      <div className="flex items-center gap-2 mt-3 text-emerald-400 text-[10px]">
+                      <div className="flex items-center gap-2 mt-3 text-[#1f8d52] text-[10px]">
                         <span className="material-symbols-outlined text-sm">check_circle</span>
                         Payload Validated
                       </div>

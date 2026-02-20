@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import colors from '../theme/colors';
 
 export default function SplashScreen({ navigation }) {
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -30,9 +31,9 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#0f172a',
+        backgroundColor: colors.bg.app,
     },
     shield: { fontSize: 64, marginBottom: 16 },
-    title: { fontSize: 32, fontWeight: 'bold', color: '#38bdf8' },
-    subtitle: { fontSize: 14, color: '#94a3b8', marginTop: 8 },
+    title: { fontSize: 32, fontWeight: 'bold', color: colors.brand.primary },
+    subtitle: { fontSize: 14, color: colors.text.secondary, marginTop: 8 },
 });

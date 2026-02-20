@@ -18,15 +18,15 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-full flex flex-col border-r border-slate-800 bg-[#111618] hidden md:flex flex-shrink-0 z-20">
+    <aside className="w-64 h-full flex flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-sidebar)] hidden md:flex flex-shrink-0 z-20">
       {/* Logo */}
       <div className="p-6 flex items-center gap-3">
-        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#3abff8] to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+        <div className="h-10 w-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white font-bold text-xl shadow-sm">
           P
         </div>
         <div>
-          <h1 className="font-bold text-lg tracking-tight">PrahariPay</h1>
-          <p className="text-xs text-slate-400">Merchant Portal</p>
+          <h1 className="font-bold text-lg tracking-tight text-[var(--color-text-primary)]">PrahariPay</h1>
+          <p className="text-xs text-[var(--color-text-muted)]">Merchant Portal</p>
         </div>
       </div>
 
@@ -40,8 +40,8 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                 isActive
-                  ? "bg-[#27343a] text-[#3abff8] font-medium"
-                  : "text-slate-400 hover:bg-[#27343a] hover:text-white"
+                  ? "bg-[#f3e6d9] text-[var(--color-primary)] font-medium"
+                  : "text-[var(--color-text-secondary)] hover:bg-[#f7f2e9] hover:text-[var(--color-text-primary)]"
               }`}
             >
               <span className={`material-symbols-outlined ${isActive ? "fill" : ""}`}>
@@ -53,13 +53,13 @@ export default function Sidebar() {
         })}
 
         {/* Bottom section */}
-        <div className="mt-auto pt-4 border-t border-slate-800">
+        <div className="mt-auto pt-4 border-t border-[var(--color-border-subtle)]">
           <Link
             href="/settings"
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
               pathname === "/settings"
-                ? "bg-[#27343a] text-[#3abff8] font-medium"
-                : "text-slate-400 hover:bg-[#27343a] hover:text-white"
+                ? "bg-[#f3e6d9] text-[var(--color-primary)] font-medium"
+                : "text-[var(--color-text-secondary)] hover:bg-[#f7f2e9] hover:text-[var(--color-text-primary)]"
             }`}
           >
             <span className="material-symbols-outlined">settings</span>

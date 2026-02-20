@@ -55,10 +55,10 @@ export default function AnalyticsPage() {
   const totalCount = Object.values(riskDistribution).reduce((a, b) => a + b, 0) || 1;
 
   const riskColors: Record<string, string> = {
-    Valid: "#10b981",
-    "Likely Honest Conflict": "#3abff8",
-    Suspicious: "#fbbf24",
-    "Likely Fraud": "#f87171",
+    Valid: "#1f8d52",
+    "Likely Honest Conflict": "#b56a00",
+    Suspicious: "#cc7a18",
+    "Likely Fraud": "#b33636",
   };
 
   // SVG donut data
@@ -91,17 +91,17 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-800">
+      <div className="px-6 py-4 border-b border-(--color-border-subtle) bg-(--color-bg-app)">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Analytics Summary</h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-(--color-text-secondary) mt-1">
               Performance metrics and risk classification overview
             </p>
           </div>
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#3abff8]/10 text-[#3abff8] text-xs font-semibold hover:bg-[#3abff8]/20 transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#d7b68d] text-(--color-primary) text-xs font-semibold hover:bg-[#f8ecdf] transition"
           >
             <span className="material-symbols-outlined text-sm">download</span>
             Export Report
@@ -109,53 +109,53 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 p-6 space-y-6 max-w-[1400px] w-full mx-auto">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-[#1b2427] rounded-xl border border-slate-800 p-5">
+          <div className="pp-card rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#3abff8]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#3abff8]">payments</span>
+              <div className="w-10 h-10 rounded-lg bg-[#f7e6d4] flex items-center justify-center">
+                <span className="material-symbols-outlined text-(--color-primary)">payments</span>
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider">Total Volume</p>
+                <p className="text-[10px] text-(--color-text-muted) uppercase tracking-wider">Total Volume</p>
                 <p className="text-xl font-bold">₹{summary?.total_amount?.toLocaleString() || "0"}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-xs text-emerald-400">
+            <div className="flex items-center gap-1 text-xs text-[#1f8d52]">
               <span className="material-symbols-outlined text-sm">trending_up</span>
               vs previous period
             </div>
           </div>
 
-          <div className="bg-[#1b2427] rounded-xl border border-slate-800 p-5">
+          <div className="pp-card rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-purple-400">receipt_long</span>
+              <div className="w-10 h-10 rounded-lg bg-[#fff6e8] flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#b56a00]">receipt_long</span>
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider">Total Transactions</p>
+                <p className="text-[10px] text-(--color-text-muted) uppercase tracking-wider">Total Transactions</p>
                 <p className="text-xl font-bold">{summary?.total_transactions || 0}</p>
               </div>
             </div>
-            <div className="text-xs text-slate-400">
+            <div className="text-xs text-(--color-text-secondary)">
               {transactions.filter((t) => t.synced).length} synced online
             </div>
           </div>
 
-          <div className="bg-[#1b2427] rounded-xl border border-red-500/20 p-5">
+          <div className="pp-card rounded-2xl p-5 border-[#f2cdcd]">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-red-400">gpp_maybe</span>
+              <div className="w-10 h-10 rounded-lg bg-[#fdecec] flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#b33636]">gpp_maybe</span>
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider">Flagged Risks</p>
-                <p className="text-xl font-bold text-red-400">{summary?.flagged_transactions || 0}</p>
+                <p className="text-[10px] text-(--color-text-muted) uppercase tracking-wider">Flagged Risks</p>
+                <p className="text-xl font-bold text-[#b33636]">{summary?.flagged_transactions || 0}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-              <span className="text-xs text-red-400">Action Required</span>
+              <span className="w-2 h-2 rounded-full bg-[#b33636] animate-pulse" />
+              <span className="text-xs text-[#b33636]">Action Required</span>
             </div>
           </div>
         </div>
@@ -163,18 +163,18 @@ export default function AnalyticsPage() {
         {/* Charts Row */}
         <div className="grid grid-cols-12 gap-6">
           {/* Transaction Volume Line Chart */}
-          <div className="col-span-12 lg:col-span-8 bg-[#1b2427] rounded-xl border border-slate-800 p-5">
+          <div className="col-span-12 lg:col-span-8 pp-card rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold">Transaction Volume</h3>
-              <span className="material-symbols-outlined text-slate-500 text-lg">more_vert</span>
+              <h3 className="text-sm font-semibold">Transaction Volume Overview</h3>
+              <span className="material-symbols-outlined text-(--color-text-muted) text-lg">more_vert</span>
             </div>
             <div className="h-36">
               {sparklinePath ? (
                 <svg viewBox="0 0 400 130" className="w-full h-full" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="lineGrad" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#3abff8" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#3abff8" stopOpacity="0" />
+                      <stop offset="0%" stopColor="#e56a00" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#e56a00" stopOpacity="0" />
                     </linearGradient>
                   </defs>
                   {/* Area fill */}
@@ -183,14 +183,14 @@ export default function AnalyticsPage() {
                     fill="url(#lineGrad)"
                   />
                   {/* Line */}
-                  <path d={sparklinePath} fill="none" stroke="#3abff8" strokeWidth="2" />
+                  <path d={sparklinePath} fill="none" stroke="#e56a00" strokeWidth="2" />
                   {/* Dots */}
                   {sparklinePoints.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#3abff8" opacity="0.8" />
+                    <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#e56a00" opacity="0.8" />
                   ))}
                 </svg>
               ) : (
-                <div className="h-full flex items-center justify-center text-sm text-slate-500">
+                <div className="h-full flex items-center justify-center text-sm text-(--color-text-muted)">
                   No transaction data yet
                 </div>
               )}
@@ -198,37 +198,37 @@ export default function AnalyticsPage() {
           </div>
 
           {/* AI Guardian Insights */}
-          <div className="col-span-12 lg:col-span-4 bg-[#1b2427] rounded-xl border border-slate-800 p-5">
+          <div className="col-span-12 lg:col-span-4 pp-card rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-[#3abff8] text-lg">auto_awesome</span>
+              <span className="material-symbols-outlined text-(--color-primary) text-lg">auto_awesome</span>
               <h3 className="text-sm font-semibold">AI Guardian Insights</h3>
             </div>
             <div className="space-y-3">
               {(summary?.flagged_transactions || 0) > 0 && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                  <span className="material-symbols-outlined text-amber-400 text-lg">warning</span>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-[#fff6e8] border border-[#f2e2bf]">
+                  <span className="material-symbols-outlined text-[#b56a00] text-lg">warning</span>
                   <div>
                     <p className="text-xs font-semibold">Risk Detected</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
+                    <p className="text-[10px] text-(--color-text-secondary) mt-0.5">
                       {summary?.flagged_transactions} transactions flagged for review
                     </p>
                   </div>
                 </div>
               )}
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-                <span className="material-symbols-outlined text-emerald-400 text-lg">sync_saved_locally</span>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-[#e9f8ef] border border-[#caebd7]">
+                <span className="material-symbols-outlined text-[#1f8d52] text-lg">sync_saved_locally</span>
                 <div>
                   <p className="text-xs font-semibold">Sync Status</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-(--color-text-secondary) mt-0.5">
                     {transactions.filter((t) => t.synced).length} of {transactions.length} transactions synced
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-[#3abff8]/5 border border-[#3abff8]/10">
-                <span className="material-symbols-outlined text-[#3abff8] text-lg">query_stats</span>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-[#f7e6d4] border border-[#eed4b8]">
+                <span className="material-symbols-outlined text-(--color-primary) text-lg">query_stats</span>
                 <div>
                   <p className="text-xs font-semibold">Spend Analysis</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-(--color-text-secondary) mt-0.5">
                     Volume trending normally across categories
                   </p>
                 </div>
@@ -240,12 +240,12 @@ export default function AnalyticsPage() {
         {/* Bottom Row */}
         <div className="grid grid-cols-12 gap-6">
           {/* Risk Classification Donut */}
-          <div className="col-span-12 lg:col-span-4 bg-[#1b2427] rounded-xl border border-slate-800 p-5">
+          <div className="col-span-12 lg:col-span-4 pp-card rounded-2xl p-5">
             <h3 className="text-sm font-semibold mb-4">Risk Classification</h3>
             <div className="flex flex-col items-center">
               <div className="relative">
                 <svg width="160" height="160" viewBox="0 0 36 36">
-                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e293b" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e7e0d1" strokeWidth="3" />
                   {donutPaths.map((seg, i) => (
                     <circle
                       key={i}
@@ -264,7 +264,7 @@ export default function AnalyticsPage() {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <p className="text-xl font-bold">{totalCount}</p>
-                    <p className="text-[10px] text-slate-400">Total</p>
+                    <p className="text-[10px] text-(--color-text-secondary)">Total</p>
                   </div>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function AnalyticsPage() {
                 {donutSegments.map((seg, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }} />
-                    <span className="text-slate-400">{seg.label}</span>
+                    <span className="text-(--color-text-secondary)">{seg.label}</span>
                     <span className="font-semibold ml-auto">{seg.pct.toFixed(0)}%</span>
                   </div>
                 ))}
@@ -281,46 +281,46 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Recent Transactions Table */}
-          <div className="col-span-12 lg:col-span-8 bg-[#1b2427] rounded-xl border border-slate-800 overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800">
+          <div className="col-span-12 lg:col-span-8 pp-card rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-(--color-border-subtle)">
               <h3 className="text-sm font-semibold">Recent Transactions</h3>
-              <a href="/transactions" className="text-[10px] text-[#3abff8] hover:underline">View All →</a>
+              <a href="/transactions" className="text-[10px] text-(--color-primary) hover:underline">View All →</a>
             </div>
             <table className="w-full">
               <thead>
-                <tr className="bg-[#111618]">
-                  <th className="text-left px-5 py-2 text-[10px] text-slate-500 uppercase tracking-wider">TX ID</th>
-                  <th className="text-left px-5 py-2 text-[10px] text-slate-500 uppercase tracking-wider">Amount</th>
-                  <th className="text-left px-5 py-2 text-[10px] text-slate-500 uppercase tracking-wider">Sender</th>
-                  <th className="text-left px-5 py-2 text-[10px] text-slate-500 uppercase tracking-wider">Status</th>
+                <tr className="bg-[#ece7db]">
+                  <th className="text-left px-5 py-2 text-[10px] text-(--color-text-muted) uppercase tracking-wider">TX ID</th>
+                  <th className="text-left px-5 py-2 text-[10px] text-(--color-text-muted) uppercase tracking-wider">Amount</th>
+                  <th className="text-left px-5 py-2 text-[10px] text-(--color-text-muted) uppercase tracking-wider">Sender</th>
+                  <th className="text-left px-5 py-2 text-[10px] text-(--color-text-muted) uppercase tracking-wider">Status</th>
                   <th className="px-5 py-2" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
+              <tbody className="divide-y divide-(--color-border-subtle) bg-(--color-bg-card)">
                 {recentTx.map((tx) => (
-                  <tr key={tx.transaction_id} className="hover:bg-[#27343a] transition">
-                    <td className="px-5 py-3 text-xs font-mono text-slate-400">
+                  <tr key={tx.transaction_id} className="hover:bg-[#f8f4ec] transition">
+                    <td className="px-5 py-3 text-xs font-mono text-(--color-text-secondary)">
                       #{tx.transaction_id.slice(0, 8)}
                     </td>
                     <td className="px-5 py-3 text-sm font-semibold">₹{tx.amount}</td>
-                    <td className="px-5 py-3 text-xs text-slate-400">{tx.sender_id}</td>
+                    <td className="px-5 py-3 text-xs text-(--color-text-secondary)">{tx.sender_id}</td>
                     <td className="px-5 py-3">
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                           tx.classification === "Valid"
-                            ? "bg-emerald-500/10 text-emerald-400"
+                            ? "bg-[#e9f8ef] text-[#1f8d52]"
                             : tx.classification === "Suspicious"
-                            ? "bg-amber-500/10 text-amber-400"
+                            ? "bg-[#fff1e8] text-[#cc6500]"
                             : tx.classification === "Likely Fraud"
-                            ? "bg-red-500/10 text-red-400"
-                            : "bg-slate-700/50 text-slate-400"
+                            ? "bg-[#fdecec] text-[#b33636]"
+                            : "bg-[#efebe2] text-(--color-text-secondary)"
                         }`}
                       >
                         {tx.classification || "Pending"}
                       </span>
                     </td>
                     <td className="px-5 py-3">
-                      <span className="material-symbols-outlined text-slate-600 text-lg cursor-pointer hover:text-slate-400">
+                      <span className="material-symbols-outlined text-(--color-text-muted) text-lg cursor-pointer hover:text-(--color-text-secondary)">
                         more_vert
                       </span>
                     </td>
@@ -328,7 +328,7 @@ export default function AnalyticsPage() {
                 ))}
                 {recentTx.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-6 text-sm text-slate-500">
+                    <td colSpan={5} className="text-center py-6 text-sm text-(--color-text-muted)">
                       No transactions yet
                     </td>
                   </tr>

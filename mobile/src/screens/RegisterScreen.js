@@ -12,6 +12,7 @@ import {
 import { getAuthErrorMessage, registerUser } from '../services/authService';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
+import colors from '../theme/colors';
 
 export default function RegisterScreen({ navigation }) {
     const [username, setUsername] = useState('');
@@ -63,7 +64,7 @@ export default function RegisterScreen({ navigation }) {
                     value={username}
                     onChangeText={setUsername}
                     placeholder="Choose username"
-                    placeholderTextColor="#64748b"
+                    placeholderTextColor={colors.text.muted}
                     autoCapitalize="none"
                     style={styles.input}
                 />
@@ -71,7 +72,7 @@ export default function RegisterScreen({ navigation }) {
                     value={password}
                     onChangeText={setPassword}
                     placeholder="Create password"
-                    placeholderTextColor="#64748b"
+                    placeholderTextColor={colors.text.muted}
                     secureTextEntry
                     style={styles.input}
                 />
@@ -84,8 +85,8 @@ export default function RegisterScreen({ navigation }) {
                     <Switch
                         value={isMerchant}
                         onValueChange={setIsMerchant}
-                        trackColor={{ false: '#334155', true: '#3abff8' }}
-                        thumbColor="#f8fafc"
+                        trackColor={{ false: colors.border.strong, true: colors.brand.primary }}
+                        thumbColor={colors.text.inverse}
                     />
                 </View>
 
@@ -94,7 +95,7 @@ export default function RegisterScreen({ navigation }) {
                     disabled={loading}
                     onPress={handleRegister}
                 >
-                    {loading ? <ActivityIndicator color="#0f172a" /> : <Text style={styles.buttonText}>Create Account</Text>}
+                    {loading ? <ActivityIndicator color={colors.text.inverse} /> : <Text style={styles.buttonText}>Create Account</Text>}
                 </AnimatedPressable>
 
                 <TouchableOpacity onPress={() => navigation.replace('Login')}>
@@ -109,69 +110,69 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#101d23',
+        backgroundColor: colors.bg.app,
         paddingHorizontal: 20,
-        paddingTop: 70,
+        paddingTop: 64,
     },
     step: {
-        color: '#38bdf8',
+        color: colors.brand.primary,
         fontWeight: '700',
         fontSize: 12,
         marginBottom: 8,
     },
     title: {
-        color: '#f8fafc',
+        color: colors.text.primary,
         fontWeight: '800',
         fontSize: 28,
     },
     subtitle: {
-        color: '#94a3b8',
+        color: colors.text.secondary,
         marginTop: 6,
-        marginBottom: 24,
+        marginBottom: 20,
     },
     card: {
-        backgroundColor: '#1e293b',
+        backgroundColor: colors.bg.card,
         borderRadius: 16,
-        borderColor: '#334155',
+        borderColor: colors.border.subtle,
         borderWidth: 1,
-        padding: 16,
+        padding: 22,
     },
     input: {
-        backgroundColor: '#111827',
-        borderColor: '#334155',
+        backgroundColor: colors.bg.muted,
+        borderColor: colors.border.subtle,
         borderWidth: 1,
         borderRadius: 12,
-        color: '#f8fafc',
+        color: colors.text.primary,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        marginBottom: 12,
+        marginBottom: 10,
     },
     toggleRow: {
-        marginTop: 4,
-        marginBottom: 16,
+        marginTop: 2,
+        marginBottom: 14,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 6,
     },
     toggleTitle: {
-        color: '#f1f5f9',
+        color: colors.text.primary,
         fontWeight: '700',
         fontSize: 14,
     },
     toggleDesc: {
-        color: '#94a3b8',
+        color: colors.text.secondary,
         fontSize: 11,
         marginTop: 2,
     },
     button: {
-        backgroundColor: '#3abff8',
+        backgroundColor: colors.brand.primary,
         borderRadius: 12,
         alignItems: 'center',
         paddingVertical: 13,
     },
     buttonText: {
-        color: '#0f172a',
+        color: colors.text.inverse,
         fontWeight: '800',
         fontSize: 14,
     },
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     },
     link: {
         textAlign: 'center',
-        color: '#38bdf8',
+        color: colors.brand.primary,
         marginTop: 12,
         fontWeight: '600',
         fontSize: 12,

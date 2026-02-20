@@ -4,6 +4,7 @@ import { getTransactions, updateTransaction } from '../services/ledgerService';
 import { getSyncErrorMessage, syncTransactions } from '../services/syncService';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
+import colors from '../theme/colors';
 
 export default function SyncScreen() {
     const [syncing, setSyncing] = useState(false);
@@ -109,7 +110,7 @@ export default function SyncScreen() {
                 disabled={syncing}
             >
                 {syncing ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={colors.text.inverse} />
                 ) : (
                     <Text style={styles.syncBtnText}>Sync Now</Text>
                 )}
@@ -125,8 +126,8 @@ export default function SyncScreen() {
                                 <Text style={styles.resultScore}>Risk: {(r.risk_score * 100).toFixed(0)}%</Text>
                             </View>
                             <Text style={[styles.resultClass, {
-                                color: r.classification === 'Valid' ? '#22c55e' :
-                                    r.classification === 'Suspicious' ? '#f97316' : '#f59e0b'
+                                color: r.classification === 'Valid' ? colors.risk.valid :
+                                    r.classification === 'Suspicious' ? colors.risk.suspicious : colors.risk.honest
                             }]}>
                                 {r.classification}
                             </Text>
@@ -157,47 +158,47 @@ export default function SyncScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0b1220', padding: 20, paddingTop: 50 },
-    title: { fontSize: 22, fontWeight: 'bold', color: '#e2e8f0', marginBottom: 8 },
-    desc: { color: '#94a3b8', fontSize: 14, marginBottom: 24, lineHeight: 20 },
+    container: { flex: 1, backgroundColor: colors.bg.app, padding: 20, paddingTop: 52, paddingBottom: 32 },
+    title: { fontSize: 24, fontWeight: 'bold', color: colors.text.primary, marginBottom: 6 },
+    desc: { color: colors.text.secondary, fontSize: 14, marginBottom: 24, lineHeight: 20 },
     summaryCard: {
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         padding: 14,
         marginBottom: 14,
     },
-    summaryLabel: { color: '#94a3b8', fontSize: 11, fontWeight: '700' },
-    summaryValue: { color: '#e2e8f0', fontSize: 28, fontWeight: '800', marginTop: 4 },
-    summaryHint: { color: '#64748b', fontSize: 11 },
+    summaryLabel: { color: colors.text.secondary, fontSize: 11, fontWeight: '700' },
+    summaryValue: { color: colors.text.primary, fontSize: 28, fontWeight: '800', marginTop: 4 },
+    summaryHint: { color: colors.text.muted, fontSize: 11 },
     syncBtn: {
-        backgroundColor: '#0ea5e9',
+        backgroundColor: colors.brand.primary,
         borderRadius: 12,
         paddingVertical: 16,
         alignItems: 'center',
     },
     syncBtnDisabled: { opacity: 0.6 },
-    syncBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    syncBtnText: { color: colors.text.inverse, fontSize: 16, fontWeight: 'bold' },
     resultsBox: {
         marginTop: 24,
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
         padding: 16,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
     },
-    resultsTitle: { color: '#e2e8f0', fontSize: 16, fontWeight: '600', marginBottom: 12 },
+    resultsTitle: { color: colors.text.primary, fontSize: 16, fontWeight: '600', marginBottom: 12 },
     resultItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: '#25324a',
+        borderBottomColor: colors.border.subtle,
     },
-    resultTx: { color: '#94a3b8', fontSize: 12 },
-    resultScore: { color: '#f59e0b', fontSize: 12, fontWeight: '600', marginTop: 2 },
+    resultTx: { color: colors.text.secondary, fontSize: 12 },
+    resultScore: { color: colors.risk.honest, fontSize: 12, fontWeight: '600', marginTop: 2 },
     resultClass: { fontSize: 12, fontWeight: '600' },
     successOverlay: {
         position: 'absolute',
@@ -207,17 +208,17 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(3, 8, 18, 0.28)',
+        backgroundColor: colors.bg.overlaySoft,
     },
     successBadge: {
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#14532d',
-        backgroundColor: '#052e16',
+        borderColor: '#caebd7',
+        backgroundColor: colors.status.successBg,
         paddingHorizontal: 20,
         paddingVertical: 14,
         alignItems: 'center',
     },
-    successIcon: { color: '#22c55e', fontSize: 26, fontWeight: '900' },
-    successText: { color: '#bbf7d0', fontSize: 13, fontWeight: '800', marginTop: 2 },
+    successIcon: { color: colors.status.successFg, fontSize: 26, fontWeight: '900' },
+    successText: { color: colors.status.successFg, fontSize: 13, fontWeight: '800', marginTop: 2 },
 });

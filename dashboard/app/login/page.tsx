@@ -45,30 +45,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#101d23] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-(--color-bg-app) flex items-center justify-center p-4">
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-[#3abff8]/10 blur-[120px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-[#f7e6d4] blur-[120px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 rounded-2xl bg-gradient-to-br from-[#3abff8] to-blue-600 items-center justify-center text-white text-3xl font-bold mb-4">
+          <div className="inline-flex h-16 w-16 rounded-2xl bg-(--color-primary) items-center justify-center text-white text-3xl font-bold mb-4 shadow-sm">
             P
           </div>
-          <h1 className="text-2xl font-bold text-white">PrahariPay</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold text-(--color-text-primary)">PrahariPay</h1>
+          <p className="text-sm text-(--color-text-secondary) mt-1">
             AI-Powered Guardian Payment Protocol
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#1b2427]/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8">
-          <h2 className="text-lg font-semibold text-white mb-1">
+        <div className="bg-(--color-bg-card) border border-(--color-border-subtle) rounded-2xl p-8 shadow-sm">
+          <h2 className="text-lg font-semibold text-(--color-text-primary) mb-1">
             {isRegister ? "Create Account" : "Welcome Back"}
           </h2>
-          <p className="text-sm text-slate-400 mb-6">
+          <p className="text-sm text-(--color-text-secondary) mb-6">
             {isRegister
               ? "Register your merchant identity"
               : "Sign in to your merchant portal"}
@@ -83,18 +83,18 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-(--color-text-secondary) mb-2 uppercase tracking-wider">
                 Prahari ID
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xl">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) text-xl">
                   person
                 </span>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#111618] border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:border-[#3abff8] focus:ring-1 focus:ring-[#3abff8]/30 transition"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#f8f4ec] border border-(--color-border-subtle) text-(--color-text-primary) placeholder-[#b9b2a5] focus:outline-none focus:border-[#d7b68d] focus:ring-1 focus:ring-[#f4dfc4] transition"
                   placeholder="Enter your Prahari ID"
                   required
                 />
@@ -103,18 +103,18 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-(--color-text-secondary) mb-2 uppercase tracking-wider">
                 Passphrase
               </label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xl">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-muted) text-xl">
                   lock
                 </span>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#111618] border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:border-[#3abff8] focus:ring-1 focus:ring-[#3abff8]/30 transition"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#f8f4ec] border border-(--color-border-subtle) text-(--color-text-primary) placeholder-[#b9b2a5] focus:outline-none focus:border-[#d7b68d] focus:ring-1 focus:ring-[#f4dfc4] transition"
                   placeholder="Enter passphrase"
                   required
                 />
@@ -123,12 +123,12 @@ export default function LoginPage() {
 
             {/* Merchant Toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Merchant Mode</span>
+              <span className="text-sm text-(--color-text-secondary)">Merchant Mode</span>
               <button
                 type="button"
                 onClick={() => setIsMerchant(!isMerchant)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${
-                  isMerchant ? "bg-[#3abff8]" : "bg-slate-700"
+                  isMerchant ? "bg-(--color-primary)" : "bg-[#ccc3b3]"
                 }`}
               >
                 <span
@@ -143,7 +143,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-[#3abff8] text-[#111618] font-semibold hover:bg-[#3abff8]/90 transition disabled:opacity-50 shadow-lg shadow-[#3abff8]/20"
+              className="w-full py-3 rounded-xl pp-btn-primary font-semibold transition disabled:opacity-50"
             >
               {loading
                 ? "Processing..."
@@ -159,7 +159,7 @@ export default function LoginPage() {
                 setIsRegister(!isRegister);
                 setError("");
               }}
-              className="text-sm text-[#3abff8] hover:underline"
+              className="text-sm text-(--color-primary) hover:underline"
             >
               {isRegister
                 ? "Already have an account? Sign in"

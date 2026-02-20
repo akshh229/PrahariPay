@@ -12,6 +12,7 @@ import { getAuthErrorMessage, loginUser } from '../services/authService';
 import { API_BASE_URL } from '../services/apiConfig';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
+import colors from '../theme/colors';
 
 export default function LoginScreen({ navigation }) {
     const [username, setUsername] = useState('');
@@ -58,7 +59,7 @@ export default function LoginScreen({ navigation }) {
                     value={username}
                     onChangeText={setUsername}
                     placeholder="Username"
-                    placeholderTextColor="#64748b"
+                    placeholderTextColor={colors.text.muted}
                     autoCapitalize="none"
                     style={styles.input}
                 />
@@ -66,7 +67,7 @@ export default function LoginScreen({ navigation }) {
                     value={password}
                     onChangeText={setPassword}
                     placeholder="Password"
-                    placeholderTextColor="#64748b"
+                    placeholderTextColor={colors.text.muted}
                     secureTextEntry
                     style={styles.input}
                 />
@@ -76,7 +77,7 @@ export default function LoginScreen({ navigation }) {
                     onPress={handleLogin}
                     disabled={loading}
                 >
-                    {loading ? <ActivityIndicator color="#0f172a" /> : <Text style={styles.loginText}>Authenticate</Text>}
+                    {loading ? <ActivityIndicator color={colors.text.inverse} /> : <Text style={styles.loginText}>Authenticate</Text>}
                 </AnimatedPressable>
 
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -91,7 +92,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0f172a',
+        backgroundColor: colors.bg.app,
         paddingHorizontal: 20,
         justifyContent: 'center',
     },
@@ -100,13 +101,13 @@ const styles = StyleSheet.create({
         width: 280,
         height: 280,
         borderRadius: 140,
-        backgroundColor: 'rgba(58,191,248,0.15)',
+        backgroundColor: colors.brand.soft,
         top: 110,
         alignSelf: 'center',
     },
     header: {
         alignItems: 'center',
-        marginBottom: 36,
+        marginBottom: 28,
     },
     logo: {
         fontSize: 56,
@@ -115,65 +116,65 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 30,
         fontWeight: '800',
-        color: '#e2e8f0',
+        color: colors.text.primary,
     },
     subtitle: {
         marginTop: 6,
-        color: '#94a3b8',
+        color: colors.text.secondary,
         fontSize: 13,
     },
     debugText: {
         marginTop: 8,
-        color: '#64748b',
+        color: colors.text.muted,
         fontSize: 11,
         textAlign: 'center',
     },
     card: {
-        backgroundColor: 'rgba(30,41,59,0.85)',
+        backgroundColor: colors.bg.card,
         borderWidth: 1,
-        borderColor: '#334155',
+        borderColor: colors.border.subtle,
         borderRadius: 18,
-        padding: 20,
+        padding: 22,
     },
     cardTitle: {
-        color: '#f8fafc',
+        color: colors.text.primary,
         fontWeight: '700',
         fontSize: 20,
     },
     cardText: {
         marginTop: 4,
-        color: '#94a3b8',
+        color: colors.text.secondary,
         fontSize: 12,
-        marginBottom: 16,
+        marginBottom: 14,
     },
     input: {
-        backgroundColor: '#111827',
-        borderColor: '#334155',
+        backgroundColor: colors.bg.muted,
+        borderColor: colors.border.subtle,
         borderWidth: 1,
         borderRadius: 12,
-        color: '#f8fafc',
+        color: colors.text.primary,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        marginBottom: 12,
+        marginBottom: 10,
     },
     loginButton: {
-        backgroundColor: '#3abff8',
+        backgroundColor: colors.brand.primary,
         borderRadius: 12,
         paddingVertical: 13,
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: 2,
     },
     disabledButton: {
         opacity: 0.6,
     },
     loginText: {
-        color: '#0f172a',
+        color: colors.text.inverse,
         fontWeight: '800',
         fontSize: 14,
     },
     link: {
-        marginTop: 14,
-        color: '#38bdf8',
+        marginTop: 12,
+        color: colors.brand.primary,
         textAlign: 'center',
         fontSize: 12,
         fontWeight: '600',

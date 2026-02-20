@@ -2,8 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getTransactions } from '../services/ledgerService';
 import AnimatedScreen from '../components/AnimatedScreen';
+import colors from '../theme/colors';
 
-const CATEGORY_COLORS = ['#3abff8', '#fbbf24', '#a78bfa', '#34d399', '#f472b6', '#94a3b8'];
+const CATEGORY_COLORS = [
+    colors.brand.primary,
+    colors.status.warningFg,
+    colors.status.infoFg,
+    colors.status.successFg,
+    colors.risk.suspicious,
+    colors.text.muted,
+];
 
 export default function InsightsScreen() {
     const [transactions, setTransactions] = useState([]);
@@ -100,56 +108,56 @@ export default function InsightsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0b0f1a' },
-    content: { padding: 20, paddingTop: 52, paddingBottom: 30 },
-    title: { fontSize: 26, color: '#f8fafc', fontWeight: '800' },
-    subtitle: { color: '#94a3b8', marginTop: 4, marginBottom: 16 },
+    container: { flex: 1, backgroundColor: colors.bg.app },
+    content: { padding: 20, paddingTop: 52, paddingBottom: 32 },
+    title: { fontSize: 26, color: colors.text.primary, fontWeight: '800' },
+    subtitle: { color: colors.text.secondary, marginTop: 4, marginBottom: 16 },
     heroCard: {
-        backgroundColor: '#161e2d',
+        backgroundColor: colors.bg.card,
         borderRadius: 18,
         padding: 18,
         borderWidth: 1,
-        borderColor: '#263145',
+        borderColor: colors.border.subtle,
     },
-    heroLabel: { color: '#94a3b8', fontSize: 12, fontWeight: '600' },
-    heroAmount: { color: '#f8fafc', fontSize: 30, fontWeight: '800', marginTop: 6 },
-    heroMeta: { color: '#38bdf8', marginTop: 6, fontSize: 12, fontWeight: '600' },
+    heroLabel: { color: colors.text.secondary, fontSize: 12, fontWeight: '600' },
+    heroAmount: { color: colors.brand.primary, fontSize: 30, fontWeight: '800', marginTop: 6 },
+    heroMeta: { color: colors.text.secondary, marginTop: 6, fontSize: 12, fontWeight: '600' },
     grid: { flexDirection: 'row', gap: 12, marginTop: 12 },
     smallCard: {
         flex: 1,
-        backgroundColor: '#161e2d',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: '#263145',
+        borderColor: colors.border.subtle,
         padding: 14,
     },
-    smallLabel: { color: '#94a3b8', fontSize: 11, fontWeight: '600' },
+    smallLabel: { color: colors.text.secondary, fontSize: 11, fontWeight: '600' },
     smallValue: { marginTop: 6, fontSize: 24, fontWeight: '800' },
     card: {
         marginTop: 12,
-        backgroundColor: '#161e2d',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: '#263145',
+        borderColor: colors.border.subtle,
         padding: 14,
     },
-    cardTitle: { color: '#f8fafc', fontWeight: '700', fontSize: 14, marginBottom: 10 },
-    trustValue: { color: '#38bdf8', fontSize: 28, fontWeight: '800', marginTop: -2 },
+    cardTitle: { color: colors.text.primary, fontWeight: '700', fontSize: 14, marginBottom: 10 },
+    trustValue: { color: colors.brand.primary, fontSize: 28, fontWeight: '800', marginTop: -2 },
     trustBarTrack: {
         marginTop: 10,
         height: 10,
         borderRadius: 999,
-        backgroundColor: '#0b1220',
+        backgroundColor: colors.bg.muted,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         overflow: 'hidden',
     },
-    trustBarFill: { height: '100%', backgroundColor: '#38bdf8' },
-    trustHint: { color: '#94a3b8', fontSize: 11, marginTop: 8 },
+    trustBarFill: { height: '100%', backgroundColor: colors.brand.primary },
+    trustHint: { color: colors.text.secondary, fontSize: 11, marginTop: 8 },
     bars: { flexDirection: 'row', alignItems: 'flex-end', height: 80, gap: 8 },
     barWrap: { flex: 1, justifyContent: 'flex-end' },
     bar: { borderRadius: 8 },
     tip: { marginBottom: 8 },
-    tipTitle: { color: '#e2e8f0', fontWeight: '700', fontSize: 12 },
-    tipText: { color: '#94a3b8', fontSize: 11, marginTop: 2 },
+    tipTitle: { color: colors.text.primary, fontWeight: '700', fontSize: 12 },
+    tipText: { color: colors.text.secondary, fontSize: 11, marginTop: 2 },
 });
