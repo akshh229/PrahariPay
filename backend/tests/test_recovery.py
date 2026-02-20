@@ -65,6 +65,36 @@ class TestGuardianRegistration:
         assert resp.status_code == 200
         assert resp.json()["count"] == 1
 
+    def test_register_guardian_by_username(self, client):
+        """Users can register guardians using their username."""
+        owner = register_user(client, "owner")
+        register_user(client, "myguardian")
+        header = {"Authorization": f"Bearer {owner['access_token']}"}
+
+        resp = client.post(
+            "/api/v1/register-guardians",
+            json={"guardian_ids": ["myguardian"]},
+            headers=header,
+        )
+        assert resp.status_code == 200
+        assert resp.json()["count"] == 1
+
+    def test_register_guardian_by_ppay_handle(self, client):
+        """Users can register guardians using the user@ppay handle."""
+        owner = register_user(client, "owner")
+        register_user(client, "budak")
+        header = {"Authorization": f"Bearer {owner['access_token']}"}
+
+        resp = client.post(
+            "/api/v1/register-guardians",
+            json={"guardian_ids": ["budak@ppay"]},
+            headers=header,
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["count"] == 1
+        assert data["guardians"][0]["guardian_name"] == "budak"
+
 
 class TestRecoveryFlow:
     def _setup_recovery(self, client):

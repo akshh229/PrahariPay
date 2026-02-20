@@ -1,6 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, API_TIMEOUT_MS } from './apiConfig';
+import { setBalance } from './ledgerService';
 
 const authClient = axios.create({
     baseURL: API_BASE_URL,
@@ -44,6 +45,18 @@ export const loginUser = async (username, password) => {
     await AsyncStorage.setItem('refresh_token', response.data.refresh_token);
     await AsyncStorage.setItem('user_id', response.data.user_id);
     await AsyncStorage.setItem('username', response.data.username);
+
+    try {
+        const profile = await authClient.get('/auth/profile', {
+            headers: { Authorization: `Bearer ${response.data.access_token}` },
+        });
+        if (typeof profile?.data?.balance === 'number') {
+            await setBalance(profile.data.balance);
+        }
+    } catch {
+        // keep login successful even if profile refresh fails
+    }
+
     return response.data;
 };
 

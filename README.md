@@ -258,6 +258,20 @@ cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 
+### Demo Users (Auto-Seeded)
+
+When `DEMO_SEED_ENABLED=true` (default), the backend auto-seeds demo users and random transaction activity.
+
+Use any of these credentials:
+
+- Username: `demo_merchant` | Password: `demo1234`
+- Username: `demo_alice` | Password: `demo1234`
+- Username: `demo_bob` | Password: `demo1234`
+- Username: `demo_charlie` | Password: `demo1234`
+- Username: `demo_diana` | Password: `demo1234`
+
+To disable demo seeding, set `DEMO_SEED_ENABLED=false` in your environment.
+
 🧪 Demo Flow
 
 Enable Offline Mode

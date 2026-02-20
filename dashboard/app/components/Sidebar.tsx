@@ -8,6 +8,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: "receipt_long" },
   { href: "/generate-qr", label: "Receive Payment", icon: "qr_code_2" },
   { href: "/spend-analyzer", label: "Spend Insights", icon: "analytics" },
+  { href: "/loan-applications", label: "Loan Applications", icon: "account_balance" },
   { href: "/analytics", label: "Analytics", icon: "monitoring" },
   { href: "/network", label: "Network", icon: "hub" },
   { href: "/recovery", label: "Recovery", icon: "shield" },

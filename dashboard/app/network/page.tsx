@@ -9,6 +9,16 @@ import {
   type GossipStats,
 } from "../services/api";
 
+/** SHA-256 hash a string and return the first `len` hex chars. */
+async function hashLabel(input: string, len = 8): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  const hex = Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return hex.slice(0, len);
+}
+
 interface LogEntry {
   hash: string;
   time: string;
@@ -56,27 +66,34 @@ export default function NetworkPage() {
           recentTxs.map((tx) => fetchGossipReconstruction(tx.transaction_id))
         );
 
-        const logs: LogEntry[] = recentTxs.map((tx, i) => {
-          const reconstruction = recon[i];
-          const hops = Number(reconstruction?.hops || 0);
-          return {
-            hash: `#${tx.transaction_id.slice(0, 8)}`,
-            time: `${Math.max(1, Math.round((Date.now() - new Date(tx.timestamp).getTime()) / 1000))}s ago`,
-            method: reconstruction ? `Gossip (${hops} hops)` : "Ledger Sync",
-            nodeId: (reconstruction?.source_peer_id as string) || tx.sender_id,
-            color: reconstruction ? "#3abff8" : "#64748b",
-          };
-        });
+        const logs: LogEntry[] = await Promise.all(
+          recentTxs.map(async (tx, i) => {
+            const reconstruction = recon[i];
+            const hops = Number(reconstruction?.hops || 0);
+            const rawId = (reconstruction?.source_peer_id as string) || tx.sender_id;
+            const hashedId = await hashLabel(rawId);
+            return {
+              hash: `#${tx.transaction_id.slice(0, 8)}`,
+              time: `${Math.max(1, Math.round((Date.now() - new Date(tx.timestamp).getTime()) / 1000))}s ago`,
+              method: reconstruction ? `Gossip (${hops} hops)` : "Ledger Sync",
+              nodeId: hashedId,
+              color: reconstruction ? "#3abff8" : "#64748b",
+            };
+          })
+        );
         setLogEntries(logs);
 
         const uniqueSenders = Array.from(new Set(recentTxs.map((tx) => tx.sender_id))).slice(0, 6);
+        const hashedLabels = await Promise.all(
+          uniqueSenders.map((s) => hashLabel(s))
+        );
         const dynamicPeers: PeerNode[] = uniqueSenders.map((sender, i) => {
           const angle = (i / Math.max(1, uniqueSenders.length)) * Math.PI * 2;
           const x = 50 + Math.cos(angle) * 28;
           const y = 50 + Math.sin(angle) * 28;
           return {
             id: `peer-${i}`,
-            label: sender.slice(0, 6),
+            label: hashedLabels[i],
             x,
             y,
             size: 8 + (i % 3),

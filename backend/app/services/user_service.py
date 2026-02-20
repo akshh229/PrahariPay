@@ -21,6 +21,7 @@ def create_user(
         username=username,
         hashed_password=hashed,
         is_merchant=is_merchant,
+        balance=100000.0,
     )
     db.add(user)
     db.commit()

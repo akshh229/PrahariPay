@@ -225,6 +225,73 @@ export interface SpendAnalysisResponse {
     alerts: SpendAlert[];
 }
 
+export interface ConfidenceFactor {
+    name: string;
+    score: number;
+    impact: string;
+    description: string;
+}
+
+export interface CreditScoreForLenders {
+    score: number;
+    band: string;
+    summary: string;
+    factors: ConfidenceFactor[];
+    utilization_pct: number;
+    on_time_payment_ratio: number;
+    income_stability_ratio: number;
+    savings_buffer_ratio: number;
+    txn_history_months: number;
+    recommended_limit?: number | null;
+    risk_level: string;
+    is_insufficient_data: boolean;
+}
+
+export interface ConfidenceScoreResponse {
+    user_id: string;
+    lookback_months: number;
+    generated_at: string;
+    credit_score: CreditScoreForLenders;
+}
+
+export type LoanConfidenceBand = 'HIGH' | 'MEDIUM' | 'LOW' | 'INSUFFICIENT_DATA';
+export type LoanApplicationStatus = 'PENDING_BANK' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface ApplyLoanApnaRashiRequest {
+    requested_amount: number;
+    requested_tenor_months: number;
+    consent: boolean;
+}
+
+export interface ApplyLoanApnaRashiResponse {
+    application_id: string;
+    status: LoanApplicationStatus;
+    confidence_score: number;
+    confidence_band: LoanConfidenceBand;
+    lookback_period_months: number;
+}
+
+export interface LoanApplicationListItem {
+    application_id: string;
+    partner: string;
+    requested_amount: number;
+    requested_tenor_months: number;
+    confidence_score: number;
+    confidence_band: LoanConfidenceBand;
+    status: LoanApplicationStatus;
+    created_at: string;
+}
+
+export interface LoanApplicationListResponse {
+    applications: LoanApplicationListItem[];
+    total: number;
+}
+
+export interface SimulateApnaRashiStatusRequest {
+    application_id: string;
+    status: LoanApplicationStatus;
+}
+
 export const fetchSpendAnalysis = async (userId: string): Promise<SpendAnalysisResponse | null> => {
     try {
         const res = await authFetch(`${API_URL}/spend/analyze/${userId}`);
@@ -243,6 +310,34 @@ export const fetchSpendSummary = async (userId: string, period: string = 'monthl
     } catch { return null; }
 };
 
+export const fetchConfidenceScore = async (
+    userId: string,
+    lookbackMonths: number = 6,
+): Promise<ConfidenceScoreResponse | null> => {
+    try {
+        const res = await authFetch(`${API_URL}/spend/credit-score/${userId}?lookback_months=${lookbackMonths}`);
+        if (!res.ok) return null;
+        return res.json();
+    } catch {
+        return null;
+    }
+};
+
+export const seedDemoActivityForUser = async (
+    userId: string,
+    count: number = 24,
+): Promise<{ status: string; user_id: string; created_count: number } | null> => {
+    try {
+        const res = await authFetch(`${API_URL}/spend/seed-demo/${userId}?count=${count}`, {
+            method: 'POST',
+        });
+        if (!res.ok) return null;
+        return res.json();
+    } catch {
+        return null;
+    }
+};
+
 /** Backend returns List[SpendAlert] directly (not wrapped) */
 export const fetchSpendAlerts = async (userId: string): Promise<SpendAlert[]> => {
     try {
@@ -250,6 +345,106 @@ export const fetchSpendAlerts = async (userId: string): Promise<SpendAlert[]> =>
         if (!res.ok) return [];
         return res.json();  // flat array
     } catch { return []; }
+};
+
+export const applyLoanApnaRashi = async (
+    payload: ApplyLoanApnaRashiRequest,
+): Promise<ApplyLoanApnaRashiResponse> => {
+    let res = await authFetch(`${API_URL}/loans/apply-apnarashi`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+    if (res.status === 404) {
+        res = await authFetch(`${API_URL}/spend/loan/apply-apnarashi`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    }
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Failed to send loan application');
+    }
+    return res.json();
+};
+
+export const fetchLoanApplications = async (): Promise<LoanApplicationListResponse | null> => {
+    try {
+        let res = await authFetch(`${API_URL}/loans/applications`);
+        if (res.status === 404) {
+            res = await authFetch(`${API_URL}/spend/loan/applications`);
+        }
+        if (!res.ok) return null;
+        return res.json();
+    } catch {
+        return null;
+    }
+};
+
+export const simulateApnaRashiStatusUpdate = async (
+    payload: SimulateApnaRashiStatusRequest,
+): Promise<ApplyLoanApnaRashiResponse> => {
+    const partnerToken = process.env.NEXT_PUBLIC_APNA_RASHI_PARTNER_TOKEN || 'apna-rashi-dev-token';
+    let res = await fetch(`${API_URL}/loans/apnarashi-callback`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-partner-token': partnerToken,
+        },
+        body: JSON.stringify(payload),
+    });
+    if (res.status === 404) {
+        res = await fetch(`${API_URL}/spend/loan/apnarashi-callback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-partner-token': partnerToken,
+            },
+            body: JSON.stringify(payload),
+        });
+    }
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Failed to simulate status update');
+    }
+    return res.json();
+};
+
+// ── AI Insights ──
+export type AIInsightType = 'anomaly' | 'budget' | 'prediction' | 'positive' | 'recurring' | 'savings' | 'category_shift' | 'trend';
+export type AIInsightSeverity = 'low' | 'medium' | 'high' | 'info';
+
+export interface AIInsight {
+    id: string;
+    type: AIInsightType;
+    severity: AIInsightSeverity;
+    title: string;
+    message: string;
+    icon: string;
+    category?: string | null;
+    amount?: number | null;
+    pct_change?: number | null;
+    actionable: boolean;
+    created_at: string;
+}
+
+export interface AIInsightsResponse {
+    user_id: string;
+    generated_at: string;
+    insights: AIInsight[];
+    total: number;
+}
+
+export const fetchAIInsights = async (
+    userId: string,
+    period: string = 'monthly',
+): Promise<AIInsightsResponse | null> => {
+    try {
+        const res = await authFetch(`${API_URL}/spend/insights/${userId}?period=${period}`);
+        if (!res.ok) return null;
+        return res.json();
+    } catch {
+        return null;
+    }
 };
 
 export const setBudgetThreshold = async (userId: string, category: string, monthlyLimit: number) => {
@@ -400,7 +595,10 @@ export const registerGuardians = async (guardianIds: string[]) => {
         method: 'POST',
         body: JSON.stringify({ guardian_ids: guardianIds }),
     });
-    if (!res.ok) throw new Error('Failed to register guardians');
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Failed to register guardians');
+    }
     return res.json();
 };
 

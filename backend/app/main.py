@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import ai, auth, gossip, ledger, merchant, recovery, sync, spend
+from app.api.v1 import ai, auth, gossip, ledger, merchant, recovery, sync, spend, loans
 from app.db.database import init_db
 
 
@@ -42,6 +42,7 @@ app.include_router(recovery.router, prefix="/api/v1", tags=["Recovery"])
 app.include_router(merchant.router, prefix="/api/v1/merchant", tags=["Merchant"])
 app.include_router(gossip.router, prefix="/api/v1", tags=["Gossip"])
 app.include_router(spend.router, prefix="/api/v1/spend", tags=["Spend"])
+app.include_router(loans.router, prefix="/api/v1/loans", tags=["Loans"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
 
 

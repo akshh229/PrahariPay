@@ -4,38 +4,62 @@ const LEDGER_KEY = 'praharipay_ledger';
 const BALANCE_KEY = 'praharipay_balance';
 const OFFLINE_KEY = 'praharipay_offline';
 
-const DEFAULT_BALANCE = 10000;
+const DEFAULT_BALANCE = 100000;
+
+const scopedKey = async (baseKey) => {
+    const userId = await AsyncStorage.getItem('user_id');
+    return userId ? `${baseKey}:${userId}` : baseKey;
+};
+
+const readWithLegacyFallback = async (baseKey) => {
+    const userScoped = await scopedKey(baseKey);
+    const scopedVal = await AsyncStorage.getItem(userScoped);
+    if (scopedVal !== null) {
+        return { key: userScoped, value: scopedVal };
+    }
+
+    const legacyVal = await AsyncStorage.getItem(baseKey);
+    if (legacyVal !== null && userScoped !== baseKey) {
+        await AsyncStorage.setItem(userScoped, legacyVal);
+        return { key: userScoped, value: legacyVal };
+    }
+
+    return { key: userScoped, value: null };
+};
 
 // --- Balance ---
 export const getBalance = async () => {
-    const stored = await AsyncStorage.getItem(BALANCE_KEY);
+    const { value: stored } = await readWithLegacyFallback(BALANCE_KEY);
     return stored ? parseFloat(stored) : DEFAULT_BALANCE;
 };
 
 export const setBalance = async (amount) => {
-    await AsyncStorage.setItem(BALANCE_KEY, amount.toString());
+    const key = await scopedKey(BALANCE_KEY);
+    await AsyncStorage.setItem(key, amount.toString());
 };
 
 // --- Offline Mode ---
 export const isOfflineMode = async () => {
-    const val = await AsyncStorage.getItem(OFFLINE_KEY);
+    const { value: val } = await readWithLegacyFallback(OFFLINE_KEY);
     return val === 'true';
 };
 
 export const setOfflineMode = async (enabled) => {
-    await AsyncStorage.setItem(OFFLINE_KEY, enabled ? 'true' : 'false');
+    const key = await scopedKey(OFFLINE_KEY);
+    await AsyncStorage.setItem(key, enabled ? 'true' : 'false');
 };
 
 // --- Transactions ---
 export const getTransactions = async () => {
-    const data = await AsyncStorage.getItem(LEDGER_KEY);
+    const { value: data } = await readWithLegacyFallback(LEDGER_KEY);
     return data ? JSON.parse(data) : [];
 };
 
 export const saveTransaction = async (tx) => {
     const existing = await getTransactions();
     existing.push(tx);
-    await AsyncStorage.setItem(LEDGER_KEY, JSON.stringify(existing));
+    const key = await scopedKey(LEDGER_KEY);
+    await AsyncStorage.setItem(key, JSON.stringify(existing));
 };
 
 export const updateTransaction = async (txId, updates) => {
@@ -43,5 +67,6 @@ export const updateTransaction = async (txId, updates) => {
     const updated = existing.map((tx) =>
         tx.transaction_id === txId ? { ...tx, ...updates } : tx
     );
-    await AsyncStorage.setItem(LEDGER_KEY, JSON.stringify(updated));
+    const key = await scopedKey(LEDGER_KEY);
+    await AsyncStorage.setItem(key, JSON.stringify(updated));
 };

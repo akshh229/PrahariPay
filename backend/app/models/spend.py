@@ -36,3 +36,74 @@ class SpendAlert(BaseModel):
 class SpendAnalysisResponse(BaseModel):
     summary: SpendSummary
     alerts: List[SpendAlert]
+
+
+class ConfidenceFactor(BaseModel):
+    name: str
+    score: int
+    impact: str  # positive, negative, neutral
+    description: str
+
+
+class CreditScoreForLenders(BaseModel):
+    score: int
+    band: str
+    summary: str
+    factors: List[ConfidenceFactor]
+    utilization_pct: float
+    on_time_payment_ratio: float
+    income_stability_ratio: float
+    savings_buffer_ratio: float
+    txn_history_months: int
+    recommended_limit: Optional[float] = None
+    risk_level: str
+    is_insufficient_data: bool = False
+
+
+class ConfidenceScoreResponse(BaseModel):
+    user_id: str
+    lookback_months: int
+    generated_at: str
+    credit_score: CreditScoreForLenders
+
+
+# ── AI Insights ──────────────────────────────────────────────────────
+
+
+class AIInsightType(str, Enum):
+    ANOMALY = "anomaly"
+    BUDGET = "budget"
+    PREDICTION = "prediction"
+    POSITIVE = "positive"
+    RECURRING = "recurring"
+    SAVINGS = "savings"
+    CATEGORY_SHIFT = "category_shift"
+    TREND = "trend"
+
+
+class AIInsightSeverity(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    INFO = "info"
+
+
+class AIInsight(BaseModel):
+    id: str
+    type: AIInsightType
+    severity: AIInsightSeverity
+    title: str
+    message: str
+    icon: str
+    category: Optional[SpendCategory] = None
+    amount: Optional[float] = None
+    pct_change: Optional[float] = None
+    actionable: bool = False
+    created_at: str
+
+
+class AIInsightsResponse(BaseModel):
+    user_id: str
+    generated_at: str
+    insights: List[AIInsight]
+    total: int

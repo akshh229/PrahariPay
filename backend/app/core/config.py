@@ -42,5 +42,13 @@ class Settings:
     # Gossip
     MAX_GOSSIP_HOPS: int = 5
 
+    # Demo data (development)
+    DEMO_SEED_ENABLED: bool = os.getenv("DEMO_SEED_ENABLED", "true").lower() == "true"
+
+    # Partner callback auth (development default)
+    APNA_RASHI_CALLBACK_TOKEN: str = os.getenv(
+        "APNA_RASHI_CALLBACK_TOKEN", "apna-rashi-dev-token"
+    )
+
 
 settings = Settings()

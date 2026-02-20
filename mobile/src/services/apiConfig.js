@@ -2,6 +2,18 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 const MANUAL_API_URL = process.env.EXPO_PUBLIC_API_URL;
+const DEFAULT_DEV_API_URL = 'http://172.22.216.121:8000/api/v1';
+
+const isPrivateIpv4 = (value) => {
+    if (typeof value !== 'string') return false;
+    return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(value);
+};
+
+const normalizeApiBaseUrl = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    const trimmed = url.trim();
+    return trimmed.replace(/\/+$/, '');
+};
 
 const extractExpoHost = () => {
     const hostUri =
@@ -13,17 +25,23 @@ const extractExpoHost = () => {
         return null;
     }
 
-    return hostUri.split(':')[0];
+    const host = hostUri.split(':')[0];
+    return isPrivateIpv4(host) ? host : null;
 };
 
 export const resolveApiBaseUrl = () => {
-    if (MANUAL_API_URL && typeof MANUAL_API_URL === 'string') {
-        return MANUAL_API_URL.replace(/\/+$/, '');
+    const manual = normalizeApiBaseUrl(MANUAL_API_URL);
+    if (manual) {
+        return manual;
     }
 
     const expoHost = extractExpoHost();
     if (expoHost) {
         return `http://${expoHost}:8000/api/v1`;
+    }
+
+    if (DEFAULT_DEV_API_URL) {
+        return DEFAULT_DEV_API_URL;
     }
 
     if (Platform.OS === 'android') {

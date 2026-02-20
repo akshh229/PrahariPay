@@ -68,6 +68,19 @@ class TestSync:
         assert "DUPLICATE_TOKEN" in result["risk_flags"]
         assert result["risk_score"] >= 0.5
 
+    def test_sync_duplicate_transaction_id_is_idempotent(self, client):
+        tx_id = str(uuid.uuid4())
+        tx = make_transaction(transaction_id=tx_id)
+
+        first = client.post("/api/v1/sync", json=[tx])
+        assert first.status_code == 200
+
+        second = client.post("/api/v1/sync", json=[tx])
+        assert second.status_code == 200
+        second_result = second.json()["results"][0]
+        assert second_result["transaction_id"] == tx_id
+        assert second_result["synced"] is True
+
     def test_sync_valid_low_amount(self, client):
         tx = make_transaction(amount=100.0, propagated_to_peers=3)
         resp = client.post("/api/v1/sync", json=[tx])

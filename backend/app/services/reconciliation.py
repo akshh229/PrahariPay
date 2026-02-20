@@ -8,6 +8,7 @@ import json
 from datetime import timedelta
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.core.security import verify_signature
@@ -131,6 +132,29 @@ def reconcile_transaction(transaction, db: Session) -> dict:
     - Register the token as used (if not duplicate)
     - Store in DB
     """
+    existing_tx = (
+        db.query(TransactionRecord)
+        .filter(TransactionRecord.transaction_id == str(transaction.transaction_id))
+        .first()
+    )
+    if existing_tx is not None:
+        parsed_flags: list[str] = []
+        if existing_tx.risk_flags:
+            try:
+                loaded = json.loads(existing_tx.risk_flags)
+                if isinstance(loaded, list):
+                    parsed_flags = [str(x) for x in loaded]
+            except (TypeError, ValueError):
+                parsed_flags = []
+
+        return {
+            "transaction_id": transaction.transaction_id,
+            "risk_score": round(float(existing_tx.risk_score or 0.0), 4),
+            "classification": existing_tx.classification or "Valid",
+            "risk_flags": parsed_flags,
+            "synced": True,
+        }
+
     score, flags = calculate_risk_score(transaction, db)
     classification = classify_risk(score)
 
@@ -169,7 +193,33 @@ def reconcile_transaction(transaction, db: Session) -> dict:
         category=category.value,
     )
     db.add(tx_record)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing_tx = (
+            db.query(TransactionRecord)
+            .filter(TransactionRecord.transaction_id == str(transaction.transaction_id))
+            .first()
+        )
+        if existing_tx is not None:
+            parsed_flags: list[str] = []
+            if existing_tx.risk_flags:
+                try:
+                    loaded = json.loads(existing_tx.risk_flags)
+                    if isinstance(loaded, list):
+                        parsed_flags = [str(x) for x in loaded]
+                except (TypeError, ValueError):
+                    parsed_flags = []
+
+            return {
+                "transaction_id": transaction.transaction_id,
+                "risk_score": round(float(existing_tx.risk_score or 0.0), 4),
+                "classification": existing_tx.classification or "Valid",
+                "risk_flags": parsed_flags,
+                "synced": True,
+            }
+        raise
 
     # Adjust sender trust score based on risk
     sender = (

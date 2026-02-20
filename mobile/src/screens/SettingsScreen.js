@@ -11,6 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
+import colors from '../theme/colors';
 
 export default function SettingsScreen({ navigation }) {
     const [username, setUsername] = useState('Merchant');
@@ -77,25 +78,25 @@ function SettingToggle({ label, value, onChange, isLast = false }) {
             <Switch
                 value={value}
                 onValueChange={onChange}
-                trackColor={{ false: '#334155', true: '#3abff8' }}
-                thumbColor="#f8fafc"
+                trackColor={{ false: colors.border.strong, true: colors.brand.primary }}
+                thumbColor={colors.text.inverse}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0b1220' },
+    container: { flex: 1, backgroundColor: colors.bg.app },
     content: { padding: 20, paddingTop: 50, paddingBottom: 30 },
-    title: { color: '#f8fafc', fontSize: 26, fontWeight: '800' },
-    subtitle: { color: '#94a3b8', marginTop: 4, marginBottom: 16 },
+    title: { color: colors.text.primary, fontSize: 26, fontWeight: '800' },
+    subtitle: { color: colors.text.secondary, marginTop: 4, marginBottom: 16 },
     profileCard: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        backgroundColor: '#1e293b',
+        backgroundColor: colors.bg.card,
         borderRadius: 16,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         borderWidth: 1,
         padding: 14,
         marginBottom: 12,
@@ -104,51 +105,51 @@ const styles = StyleSheet.create({
         width: 46,
         height: 46,
         borderRadius: 14,
-        backgroundColor: '#3abff8',
+        backgroundColor: colors.brand.primary,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    avatarText: { color: '#0f172a', fontWeight: '900' },
-    profileName: { color: '#f8fafc', fontSize: 16, fontWeight: '700' },
-    profileMeta: { color: '#94a3b8', fontSize: 11, marginTop: 2 },
+    avatarText: { color: colors.text.inverse, fontWeight: '900' },
+    profileName: { color: colors.text.primary, fontSize: 16, fontWeight: '700' },
+    profileMeta: { color: colors.text.secondary, fontSize: 11, marginTop: 2 },
     card: {
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         borderWidth: 1,
         padding: 14,
         marginBottom: 12,
     },
-    cardTitle: { color: '#e2e8f0', fontWeight: '700', marginBottom: 10 },
+    cardTitle: { color: colors.text.primary, fontWeight: '700', marginBottom: 10 },
     toggleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 8,
-        borderBottomColor: '#334155',
+        borderBottomColor: colors.border.subtle,
         borderBottomWidth: 1,
     },
     toggleRowLast: {
         borderBottomWidth: 0,
         paddingBottom: 0,
     },
-    toggleLabel: { color: '#cbd5e1', fontSize: 13, fontWeight: '600' },
+    toggleLabel: { color: colors.text.secondary, fontSize: 13, fontWeight: '600' },
     actionButton: {
         borderRadius: 10,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         borderWidth: 1,
-        backgroundColor: '#0f172a',
+        backgroundColor: colors.bg.muted,
         paddingVertical: 10,
         paddingHorizontal: 12,
         marginBottom: 8,
     },
-    actionText: { color: '#e2e8f0', fontSize: 13, fontWeight: '600' },
+    actionText: { color: colors.text.primary, fontSize: 13, fontWeight: '600' },
     logoutButton: {
-        backgroundColor: '#ef4444',
+        backgroundColor: colors.status.dangerFg,
         borderRadius: 12,
         alignItems: 'center',
         paddingVertical: 12,
         marginTop: 8,
     },
-    logoutText: { color: '#fff', fontWeight: '800' },
+    logoutText: { color: colors.text.inverse, fontWeight: '800' },
 });

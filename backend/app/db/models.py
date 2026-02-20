@@ -31,7 +31,7 @@ class User(Base):
     username = Column(String(100), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     public_key = Column(Text, nullable=True)
-    balance = Column(Float, default=10000.0)
+    balance = Column(Float, default=100000.0)
     offline_credit_limit = Column(Float, default=2000.0)
     trust_score = Column(Float, default=1.0)
     is_merchant = Column(Boolean, default=False)
@@ -141,3 +141,19 @@ class GossipMessage(Base):
     payload = Column(Text, nullable=False)  # JSON-serialized transaction
     hops = Column(Integer, default=0)
     received_at = Column(DateTime, default=utcnow)
+
+
+class LoanApplication(Base):
+    __tablename__ = "loan_applications"
+
+    id = Column(String, primary_key=True, default=_uuid)
+    user_id = Column(String, nullable=False, index=True)
+    partner = Column(String, nullable=False, index=True)
+    requested_amount = Column(Float, nullable=False)
+    requested_tenor_months = Column(Integer, nullable=False)
+    confidence_score = Column(Integer, nullable=False)
+    confidence_band = Column(String, nullable=False)
+    lookback_period_months = Column(Integer, nullable=False, default=6)
+    status = Column(String, nullable=False, default="PENDING_BANK", index=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)

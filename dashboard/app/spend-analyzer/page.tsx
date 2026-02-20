@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  fetchConfidenceScore,
+  fetchProfile,
   fetchSpendAnalysis,
-  fetchSpendAlerts,
+  fetchAIInsights,
   fetchSpendSummary,
+  ConfidenceScoreResponse,
+  seedDemoActivityForUser,
+  AIInsight,
 } from "../services/api";
+import ConfidenceScoreCard from "../components/ConfidenceScoreCard";
+import AIInsightsFeed from "../components/AIInsightsFeed";
+import ApnaRashiLoanDrawer from "../components/ApnaRashiLoanDrawer";
 
 interface CategoryBreakdown {
   category: string;
@@ -21,24 +29,6 @@ interface SpendSummary {
   trend_pct: number;
   trend_direction: string;
   breakdown: CategoryBreakdown[];
-}
-
-interface SpendAlert {
-  id: string;
-  type: string;
-  severity: string;
-  message: string;
-  created_at: string;
-  category?: string;
-}
-
-interface InsightCard {
-  type: "anomaly" | "forecast" | "positive" | "recurring" | "info";
-  title: string;
-  message: string;
-  icon: string;
-  color: string;
-  borderColor: string;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -63,84 +53,111 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function SpendAnalyzerPage() {
   const [summary, setSummary] = useState<SpendSummary | null>(null);
-  const [alerts, setAlerts] = useState<SpendAlert[]>([]);
+  const [aiInsights, setAiInsights] = useState<AIInsight[]>([]);
+  const [insightsLoading, setInsightsLoading] = useState<boolean>(true);
+  const [insightsError, setInsightsError] = useState<boolean>(false);
+  const [confidenceScore, setConfidenceScore] = useState<ConfidenceScoreResponse | null>(null);
+  const [confidenceLoading, setConfidenceLoading] = useState<boolean>(true);
+  const [confidenceAuthRequired, setConfidenceAuthRequired] = useState<boolean>(false);
+  const [confidenceError, setConfidenceError] = useState<boolean>(false);
+  const [loanDrawerOpen, setLoanDrawerOpen] = useState<boolean>(false);
+  const seedAttemptedRef = useRef<boolean>(false);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("monthly");
   const [budgets] = useState<Record<string, number>>({});
-  const [userId] = useState(
-    () => (typeof window !== "undefined" && localStorage.getItem("user_id")) || "merchant_001"
-  );
+  const [userId, setUserId] = useState<string>("merchant_001");
+
+  useEffect(() => {
+    const resolveUser = async () => {
+      if (typeof window === "undefined") return;
+
+      const localUserId = localStorage.getItem("user_id");
+      const token = localStorage.getItem("access_token");
+
+      if (token) {
+        const profile = await fetchProfile();
+        if (profile?.id) {
+          localStorage.setItem("user_id", profile.id);
+          setUserId(profile.id);
+          return;
+        }
+      }
+
+      if (localUserId) {
+        setUserId(localUserId);
+        return;
+      }
+
+      setUserId("merchant_001");
+    };
+
+    resolveUser();
+  }, []);
+
+  useEffect(() => {
+    seedAttemptedRef.current = false;
+  }, [userId]);
 
   useEffect(() => {
     const load = async () => {
       try {
+        setConfidenceLoading(true);
+        setConfidenceAuthRequired(false);
+        setConfidenceError(false);
+        setInsightsLoading(true);
+        setInsightsError(false);
+
         const analysis = await fetchSpendAnalysis(userId);
         if (analysis) {
           setSummary(analysis.summary);
-          setAlerts(Array.isArray(analysis.alerts) ? analysis.alerts : []);
         }
 
-        const [sumData, alertData] = await Promise.all([
+        const [sumData, confidenceData, insightsData] = await Promise.all([
           fetchSpendSummary(userId, period),
-          fetchSpendAlerts(userId),
+          fetchConfidenceScore(userId, 6),
+          fetchAIInsights(userId, period),
         ]);
-        setSummary(sumData || analysis?.summary || null);
-        setAlerts(Array.isArray(alertData) ? alertData : analysis?.alerts || []);
+
+        let finalSummary = sumData || analysis?.summary || null;
+        let finalConfidence = confidenceData;
+        let finalInsights = insightsData;
+
+        const isSummaryEmpty = !finalSummary || finalSummary.total_amount <= 0;
+        const hasToken = typeof window !== "undefined" && Boolean(localStorage.getItem("access_token"));
+        if (hasToken && isSummaryEmpty && !seedAttemptedRef.current) {
+          const seedRes = await seedDemoActivityForUser(userId, 24);
+          seedAttemptedRef.current = true;
+          if (seedRes?.created_count && seedRes.created_count > 0) {
+            const [seededSummary, seededConfidence, seededInsights] = await Promise.all([
+              fetchSpendSummary(userId, period),
+              fetchConfidenceScore(userId, 6),
+              fetchAIInsights(userId, period),
+            ]);
+            finalSummary = seededSummary || finalSummary;
+            finalConfidence = seededConfidence || finalConfidence;
+            finalInsights = seededInsights || finalInsights;
+          }
+        }
+
+        setSummary(finalSummary);
+        setConfidenceScore(finalConfidence);
+        setAiInsights(finalInsights?.insights ?? []);
+        if (!finalConfidence) {
+          setConfidenceError(true);
+        }
+        if (!finalInsights) {
+          setInsightsError(true);
+        }
       } catch (e) {
         console.error(e);
+        setConfidenceError(true);
+        setInsightsError(true);
+      } finally {
+        setConfidenceLoading(false);
+        setInsightsLoading(false);
       }
     };
     load();
   }, [period, userId]);
-
-  const generateInsights = (): InsightCard[] => {
-    const insights: InsightCard[] = [];
-
-    alerts.forEach((alert) => {
-      if (alert.severity === "high") {
-        insights.push({
-          type: "anomaly",
-          title: "Budget Exceeded",
-          message: alert.message,
-          icon: "warning",
-          color: "#b33636",
-          borderColor: "#b33636",
-        });
-      } else {
-        insights.push({
-          type: "forecast",
-          title: "Budget Warning",
-          message: alert.message,
-          icon: "data_usage",
-          color: "#b56a00",
-          borderColor: "#b56a00",
-        });
-      }
-    });
-
-    if (summary && summary.trend_pct !== null) {
-      insights.push({
-        type: summary.trend_pct < 0 ? "positive" : "forecast",
-        title: summary.trend_pct < 0 ? "Spending Down" : "Spend Trend",
-        message: `Overall spending ${summary.trend_pct < 0 ? "decreased" : "increased"} by ${Math.abs(summary.trend_pct).toFixed(1)}% compared to the previous period.`,
-        icon: summary.trend_pct < 0 ? "trending_down" : "trending_up",
-        color: summary.trend_pct < 0 ? "#1f8d52" : "#b56a00",
-        borderColor: summary.trend_pct < 0 ? "#1f8d52" : "#b56a00",
-      });
-    }
-
-    if (insights.length === 0) {
-      insights.push({
-        type: "info",
-        title: "All Clear",
-        message: "No anomalies detected. Your spending is within normal patterns.",
-        icon: "check_circle",
-        color: "#1f8d52",
-        borderColor: "#1f8d52",
-      });
-    }
-
-    return insights;
-  };
 
   const donutGradient = () => {
     if (!summary?.breakdown?.length) return "conic-gradient(#e9e3d7 0deg 360deg)";
@@ -154,8 +171,6 @@ export default function SpendAnalyzerPage() {
     });
     return `conic-gradient(${stops.join(", ")})`;
   };
-
-  const insights = generateInsights();
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -311,49 +326,33 @@ export default function SpendAnalyzerPage() {
             </div>
           </div>
 
-          {/* Right column - AI Insights Feed */}
+          {/* Right column - Confidence Score */}
           <div className="col-span-12 lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-[var(--color-primary)] text-lg">auto_awesome</span>
-              <h3 className="text-sm font-semibold">AI Insights Feed</h3>
-            </div>
-            {insights.map((insight, i) => (
-              <div
-                key={i}
-                className="pp-card rounded-xl p-4 transition"
-                style={{ borderLeft: `3px solid ${insight.borderColor}`, opacity: i >= 4 ? 0.7 : 1 }}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${insight.color}22` }}>
-                    <span className="material-symbols-outlined text-lg" style={{ color: insight.color }}>
-                      {insight.icon}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-semibold">{insight.title}</h4>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-1 leading-relaxed">{insight.message}</p>
-                    {insight.type === "anomaly" && (
-                      <div className="flex gap-2 mt-3">
-                        <button className="px-3 py-1 rounded-md bg-[#fdecec] text-[#b33636] border border-[#f2cdcd] text-[10px] font-semibold transition">
-                          Action Required
-                        </button>
-                        <button className="px-3 py-1 rounded-md text-[var(--color-text-secondary)] text-[10px] hover:text-[var(--color-text-primary)] transition">
-                          Ignore
-                        </button>
-                      </div>
-                    )}
-                    {insight.type === "forecast" && (
-                      <button className="mt-2 text-[10px] text-[var(--color-primary)] hover:underline">
-                        View Details →
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+            <ConfidenceScoreCard
+              data={confidenceScore}
+              isLoading={confidenceLoading}
+              authRequired={confidenceAuthRequired}
+              hasError={confidenceError}
+              onApplyLoan={() => setLoanDrawerOpen(true)}
+            />
           </div>
         </div>
+
+        {/* AI Insights Feed - full width grid */}
+        <div className="mt-6">
+          <AIInsightsFeed
+            insights={aiInsights}
+            isLoading={insightsLoading}
+            hasError={insightsError}
+          />
+        </div>
       </div>
+
+      <ApnaRashiLoanDrawer
+        isOpen={loanDrawerOpen}
+        onClose={() => setLoanDrawerOpen(false)}
+        confidence={confidenceScore}
+      />
     </div>
   );
 }

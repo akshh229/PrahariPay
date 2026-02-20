@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { getBalance, getTransactions, isOfflineMode, setOfflineMode } from '../services/ledgerService';
 import AnimatedScreen from '../components/AnimatedScreen';
 import AnimatedPressable from '../components/AnimatedPressable';
+import colors from '../theme/colors';
 
 export default function DashboardScreen({ navigation }) {
     const [balance, setBalance] = useState(10000);
@@ -11,23 +13,30 @@ export default function DashboardScreen({ navigation }) {
     const [transactionCount, setTransactionCount] = useState(0);
     const [lastRisk, setLastRisk] = useState('No alerts');
 
+    const loadDashboardState = async () => {
+        const bal = await getBalance();
+        const mode = await isOfflineMode();
+        const txs = await getTransactions();
+
+        const pending = txs.filter((tx) => !tx.synced).length;
+        const latestRiskTx = [...txs].reverse().find((tx) => tx.classification && tx.classification !== 'Valid');
+
+        setBalance(bal);
+        setOffline(mode);
+        setPendingCount(pending);
+        setTransactionCount(txs.length);
+        setLastRisk(latestRiskTx ? latestRiskTx.classification : 'No alerts');
+    };
+
     useEffect(() => {
-        const load = async () => {
-            const bal = await getBalance();
-            const mode = await isOfflineMode();
-            const txs = await getTransactions();
-
-            const pending = txs.filter((tx) => !tx.synced).length;
-            const latestRiskTx = [...txs].reverse().find((tx) => tx.classification && tx.classification !== 'Valid');
-
-            setBalance(bal);
-            setOffline(mode);
-            setPendingCount(pending);
-            setTransactionCount(txs.length);
-            setLastRisk(latestRiskTx ? latestRiskTx.classification : 'No alerts');
-        };
-        load();
+        loadDashboardState();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadDashboardState();
+        }, [])
+    );
 
     const toggleOffline = async (val) => {
         await setOfflineMode(val);
@@ -48,8 +57,8 @@ export default function DashboardScreen({ navigation }) {
                     <Switch
                         value={offline}
                         onValueChange={toggleOffline}
-                        trackColor={{ false: '#334155', true: '#0ea5e9' }}
-                        thumbColor={offline ? '#38bdf8' : '#64748b'}
+                        trackColor={{ false: colors.border.strong, true: colors.brand.primary }}
+                        thumbColor={offline ? colors.brand.primary : colors.text.muted}
                     />
                 </View>
             </View>
@@ -75,6 +84,14 @@ export default function DashboardScreen({ navigation }) {
                 >
                     <Text style={styles.actionIcon}>📷</Text>
                     <Text style={styles.actionText}>Scan & Pay</Text>
+                </AnimatedPressable>
+
+                <AnimatedPressable
+                    style={styles.actionBtn}
+                    onPress={() => navigation.navigate('SendPpay')}
+                >
+                    <Text style={styles.actionIcon}>💸</Text>
+                    <Text style={styles.actionText}>Send</Text>
                 </AnimatedPressable>
 
                 <AnimatedPressable
@@ -116,71 +133,71 @@ export default function DashboardScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0b1220' },
+    container: { flex: 1, backgroundColor: colors.bg.app },
     content: { padding: 20, paddingTop: 52, paddingBottom: 34 },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    greeting: { fontSize: 22, fontWeight: '800', color: '#e2e8f0' },
-    subtitle: { color: '#64748b', fontSize: 12, marginTop: 3 },
+    greeting: { fontSize: 22, fontWeight: '800', color: colors.text.primary },
+    subtitle: { color: colors.text.secondary, fontSize: 12, marginTop: 3 },
     modeRow: { flexDirection: 'row', alignItems: 'center' },
-    modeLabel: { color: '#94a3b8', fontSize: 12, marginRight: 8 },
+    modeLabel: { color: colors.text.secondary, fontSize: 12, marginRight: 8 },
     balanceCard: {
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 18,
         padding: 24,
         marginTop: 24,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
     },
-    balanceLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '600' },
-    balanceAmount: { color: '#38bdf8', fontSize: 36, fontWeight: 'bold', marginTop: 8 },
-    creditLabel: { color: '#64748b', fontSize: 12, marginTop: 8 },
+    balanceLabel: { color: colors.text.secondary, fontSize: 13, fontWeight: '600' },
+    balanceAmount: { color: colors.brand.primary, fontSize: 36, fontWeight: 'bold', marginTop: 8 },
+    creditLabel: { color: colors.text.muted, fontSize: 12, marginTop: 8 },
     balanceMetaRow: { flexDirection: 'row', marginTop: 14 },
     metaBadge: {
-        backgroundColor: '#0b1220',
-        borderColor: '#25324a',
+        backgroundColor: colors.bg.muted,
+        borderColor: colors.border.subtle,
         borderWidth: 1,
         borderRadius: 999,
         paddingHorizontal: 10,
         paddingVertical: 6,
         marginRight: 8,
     },
-    metaBadgeText: { color: '#cbd5e1', fontSize: 11, fontWeight: '600' },
+    metaBadgeText: { color: colors.text.secondary, fontSize: 11, fontWeight: '600' },
     actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
     actionBtn: {
         flex: 1,
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 14,
         padding: 16,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         marginRight: 8,
     },
-    syncBtn: { borderColor: '#0ea5e9', marginRight: 0 },
+    syncBtn: { borderColor: colors.brand.primary, marginRight: 0 },
     actionIcon: { fontSize: 28, marginBottom: 8 },
-    actionText: { color: '#e2e8f0', fontSize: 13, fontWeight: '600' },
+    actionText: { color: colors.text.primary, fontSize: 13, fontWeight: '600' },
     statusBar: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginTop: 14,
         paddingVertical: 12,
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
     },
     statusItem: { flexDirection: 'row', alignItems: 'center' },
     dot: { width: 8, height: 8, borderRadius: 4 },
-    statusText: { color: '#94a3b8', fontSize: 12, marginLeft: 8 },
+    statusText: { color: colors.text.secondary, fontSize: 12, marginLeft: 8 },
     alertCard: {
         marginTop: 14,
         borderRadius: 14,
-        backgroundColor: '#131d2e',
+        backgroundColor: colors.bg.card,
         borderWidth: 1,
-        borderColor: '#25324a',
+        borderColor: colors.border.subtle,
         padding: 14,
     },
-    alertTitle: { color: '#94a3b8', fontSize: 12, fontWeight: '700' },
-    alertValue: { color: '#f8fafc', fontSize: 17, fontWeight: '800', marginTop: 4 },
-    alertHint: { color: '#64748b', fontSize: 11, marginTop: 4 },
+    alertTitle: { color: colors.text.secondary, fontSize: 12, fontWeight: '700' },
+    alertValue: { color: colors.text.primary, fontSize: 17, fontWeight: '800', marginTop: 4 },
+    alertHint: { color: colors.text.muted, fontSize: 11, marginTop: 4 },
 });

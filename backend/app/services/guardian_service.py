@@ -19,6 +19,17 @@ from app.db.models import Guardian, RecoveryApproval, RecoveryRequest, User
 # ─── Guardian Management ────────────────────────────────────────────
 
 
+def _resolve_user(db: Session, identifier: str) -> User | None:
+    """Resolve a user by UUID, username, or PrahariPay handle (user@ppay)."""
+    # Try by UUID first
+    user = db.query(User).filter(User.id == identifier).first()
+    if user:
+        return user
+    # Strip @ppay suffix if present
+    name = identifier.removesuffix("@ppay")
+    return db.query(User).filter(User.username == name).first()
+
+
 def register_guardians(
     db: Session, user_id: str, guardian_ids: list[str]
 ) -> list[Guardian]:
@@ -28,13 +39,15 @@ def register_guardians(
             f"Maximum {settings.GUARDIAN_MAX} guardians allowed"
         )
 
-    # Verify all guardian IDs correspond to real users
+    # Resolve all guardian identifiers to real users
+    resolved: list[tuple[str, User]] = []
     for gid in guardian_ids:
-        guardian_user = db.query(User).filter(User.id == gid).first()
+        guardian_user = _resolve_user(db, gid)
         if guardian_user is None:
             raise ValueError(f"Guardian user '{gid}' not found")
-        if gid == user_id:
+        if guardian_user.id == user_id:
             raise ValueError("Cannot designate yourself as guardian")
+        resolved.append((guardian_user.id, guardian_user))
 
     # Revoke existing guardians
     db.query(Guardian).filter(
@@ -43,11 +56,10 @@ def register_guardians(
 
     # Create new guardian records
     created = []
-    for gid in guardian_ids:
-        guardian_user = db.query(User).filter(User.id == gid).first()
+    for guardian_id, guardian_user in resolved:
         g = Guardian(
             user_id=user_id,
-            guardian_id=gid,
+            guardian_id=guardian_id,
             guardian_name=guardian_user.username if guardian_user else None,
             status="active",
         )

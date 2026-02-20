@@ -138,3 +138,20 @@ async def gen_keys(
         public_key=public_pem,
         private_key=private_pem,
     )
+
+
+@router.get("/resolve-ppay/{ppay_id}")
+async def resolve_ppay_id(ppay_id: str, db: Session = Depends(get_db)):
+    """Resolve a PrahariPay handle (username or user@ppay) to a user profile."""
+    name = ppay_id.removesuffix("@ppay")
+    user = db.query(User).filter(User.username == name).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="PrahariPay ID not found")
+    return {
+        "user_id": user.id,
+        "username": user.username,
+        "ppay_id": f"{user.username}@ppay",
+        "full_name": user.username,
+        "is_merchant": user.is_merchant,
+        "trust_score": user.trust_score,
+    }

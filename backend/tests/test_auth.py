@@ -106,7 +106,7 @@ class TestProfile:
         assert resp.status_code == 200
         data = resp.json()
         assert data["username"] == "testuser"
-        assert data["balance"] == 10000.0
+        assert data["balance"] == 100000.0
         assert data["trust_score"] == 1.0
 
     def test_profile_without_auth(self, client):

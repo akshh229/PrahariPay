@@ -39,9 +39,14 @@ export const getSyncErrorMessage = (error) => {
         if (!error.response) {
             return `Could not reach backend. Tried: ${candidateBaseUrls.join(', ')}`;
         }
+        const status = error.response?.status;
+        const urlTried = error.config?.baseURL || error.config?.url || 'unknown URL';
+        return `Sync failed with status ${status} from ${urlTried}`;
     }
 
-    return 'Could not connect to server. Try again later.';
+    return error instanceof Error
+        ? `Sync failed: ${error.message}`
+        : 'Could not connect to server. Try again later.';
 };
 
 const postSync = async (transactions) => {
