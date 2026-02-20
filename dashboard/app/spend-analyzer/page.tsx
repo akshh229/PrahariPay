@@ -230,12 +230,12 @@ export default function SpendAnalyzerPage() {
                 <span className="material-symbols-outlined text-[var(--color-primary)] text-lg">trending_up</span>
               </div>
               {/* Bar Chart */}
-              <div className="flex items-end gap-2 h-40">
+              <div className="flex items-end gap-3 h-40 overflow-x-auto pb-1">
                 {(summary?.breakdown || []).map((cat, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                  <div key={i} className="min-w-[72px] max-w-[96px] w-full flex flex-col items-center gap-1">
                     <span className="text-[10px] text-[var(--color-text-secondary)]">₹{cat.amount.toFixed(0)}</span>
                     <div
-                      className="w-full rounded-t-md transition-all hover:scale-y-110 origin-bottom"
+                      className="w-full rounded-t-md transition-all hover:scale-y-105 origin-bottom"
                       style={{
                         height: `${Math.max(8, (cat.percentage / 100) * 140)}px`,
                         backgroundColor: CATEGORY_COLORS[cat.category] || "#64748b",
