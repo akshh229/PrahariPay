@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   fetchConfidenceScore,
   fetchLedger,
@@ -97,6 +98,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function SpendAnalyzerPage() {
+  const searchParams = useSearchParams();
   const [summary, setSummary] = useState<SpendSummary | null>(null);
   const [aiInsights, setAiInsights] = useState<AIInsight[]>([]);
   const [insightsLoading, setInsightsLoading] = useState<boolean>(true);
@@ -107,7 +109,10 @@ export default function SpendAnalyzerPage() {
   const [confidenceError, setConfidenceError] = useState<boolean>(false);
   const [loanDrawerOpen, setLoanDrawerOpen] = useState<boolean>(false);
   const [timeSeries, setTimeSeries] = useState<TimeBucket[]>([]);
+  const [highlightSection, setHighlightSection] = useState<"spend" | "budget" | null>(null);
   const seedAttemptedRef = useRef<boolean>(false);
+  const spendCardRef = useRef<HTMLDivElement | null>(null);
+  const budgetCardRef = useRef<HTMLDivElement | null>(null);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("monthly");
   const [budgets] = useState<Record<string, number>>({});
   const [userId, setUserId] = useState<string>("merchant_001");
@@ -210,6 +215,24 @@ export default function SpendAnalyzerPage() {
     load();
   }, [period, userId]);
 
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    if (!focus) return;
+
+    const target =
+      focus === "budget" || focus === "savings" || focus === "category_shift"
+        ? "budget"
+        : "spend";
+
+    const element = target === "budget" ? budgetCardRef.current : spendCardRef.current;
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightSection(target);
+      const timer = setTimeout(() => setHighlightSection(null), 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
   const donutGradient = () => {
     if (!summary?.breakdown?.length) return "conic-gradient(#e9e3d7 0deg 360deg)";
     let deg = 0;
@@ -268,7 +291,10 @@ export default function SpendAnalyzerPage() {
           {/* Left column - Charts */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
             {/* Spend Over Time */}
-            <div className="pp-card rounded-2xl p-5">
+            <div
+              ref={spendCardRef}
+              className={`pp-card rounded-2xl p-5 transition-all ${highlightSection === "spend" ? "ring-2 ring-[#e8c98a]" : ""}`}
+            >
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-sm font-semibold">Spend Over Time</h3>
@@ -315,7 +341,10 @@ export default function SpendAnalyzerPage() {
             {/* Category Breakdown + Budget Status */}
             <div className="grid grid-cols-2 gap-6">
               {/* Donut Chart */}
-              <div className="pp-card rounded-2xl p-5">
+              <div
+                ref={budgetCardRef}
+                className={`pp-card rounded-2xl p-5 transition-all ${highlightSection === "budget" ? "ring-2 ring-[#e8c98a]" : ""}`}
+              >
                 <h3 className="text-sm font-semibold mb-4">Category Breakdown</h3>
                 <div className="flex items-center gap-5">
                   <div className="relative w-32 h-32 flex-shrink-0">

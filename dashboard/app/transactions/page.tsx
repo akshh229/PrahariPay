@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   fetchAnomalies,
   fetchLedger,
@@ -13,8 +14,9 @@ import {
 const FILTERS = ["All", "Valid", "Suspicious", "Likely Fraud"];
 
 export default function TransactionsPage() {
+  const searchParams = useSearchParams();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filter, setFilter] = useState("All");
+  const [filterOverride, setFilterOverride] = useState<string | null>(null);
   const [selected, setSelected] = useState<Transaction | null>(null);
   const [merchantId, setMerchantId] = useState(
     () => (typeof window !== "undefined" && localStorage.getItem("user_id")) || "merchant_001"
@@ -77,10 +79,20 @@ export default function TransactionsPage() {
     loadAnomalies();
   }, []);
 
+  const focus = searchParams.get("focus");
+  const focusFilter =
+    focus === "anomaly" || focus === "prediction"
+      ? "Suspicious"
+      : focus === "positive"
+      ? "Valid"
+      : "All";
+
+  const activeFilter = filterOverride || focusFilter;
+
   const filtered =
-    filter === "All"
+    activeFilter === "All"
       ? transactions
-      : transactions.filter((tx) => tx.classification === filter);
+      : transactions.filter((tx) => tx.classification === activeFilter);
 
   const riskColor = (cls?: string) => {
     switch (cls) {
@@ -138,9 +150,9 @@ export default function TransactionsPage() {
             {FILTERS.map((f) => (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => setFilterOverride(f)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                  filter === f
+                  activeFilter === f
                     ? "bg-[var(--color-primary)] text-white border border-[var(--color-primary)]"
                     : "bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)] hover:text-[var(--color-text-primary)]"
                 }`}

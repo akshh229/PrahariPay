@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { AIInsight, AIInsightSeverity, AIInsightType } from "../services/api";
 
 /* ── colour / style mapping ──────────────────────────────────────── */
@@ -37,12 +38,28 @@ export default function AIInsightsFeed({
   isLoading,
   hasError = false,
 }: AIInsightsFeedProps) {
+  const router = useRouter();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
   const visible = insights.filter((i) => !dismissed.has(i.id));
 
   const dismiss = (id: string) =>
     setDismissed((prev) => new Set(prev).add(id));
+
+  const reviewInsight = (insight: AIInsight) => {
+    const params = new URLSearchParams();
+    params.set("focus", insight.type);
+    if (insight.category) {
+      params.set("category", insight.category);
+    }
+
+    if (insight.type === "budget" || insight.type === "savings" || insight.type === "category_shift") {
+      router.push(`/spend-analyzer?${params.toString()}`);
+      return;
+    }
+
+    router.push(`/transactions?${params.toString()}`);
+  };
 
   /* ── loading skeleton ──────────────────────────────────────────── */
   if (isLoading) {
@@ -174,7 +191,9 @@ export default function AIInsightsFeed({
                 {/* action buttons */}
                 <div className="flex items-center gap-2 mt-2">
                   {insight.actionable && (
-                    <button className="px-3 py-1 rounded-md text-[10px] font-semibold transition"
+                    <button
+                      onClick={() => reviewInsight(insight)}
+                      className="px-3 py-1 rounded-md text-[10px] font-semibold transition"
                       style={{
                         backgroundColor: style.bg,
                         color: style.color,
