@@ -23,25 +23,32 @@ from app.models.spend import (
 
 
 def categorize_transaction(
-    tx_description: str, merchant_id: str = None
+    tx_description: str | None,
+    merchant_id: str | None = None,
+    receiver_id: str | None = None,
 ) -> SpendCategory:
     """
     Assign a category to a transaction based on description or merchant rules.
     Simple keyword matching for MVP.
     """
-    desc = tx_description.upper() if tx_description else ""
+    combined = " ".join(
+        [part for part in [tx_description, merchant_id, receiver_id] if part]
+    ).upper()
 
-    if any(k in desc for k in ["FOOD", "RESTAURANT", "GROCERY", "CAFE", "DINNER"]):
+    if any(k in combined for k in ["FOOD", "RESTAURANT", "GROCERY", "CAFE", "DINNER", "SWIGGY", "ZOMATO"]):
         return SpendCategory.FOOD
-    if any(k in desc for k in ["UBER", "OLA", "METRO", "FUEL", "PETROL", "USER_TRAVEL"]):
+    if any(k in combined for k in ["UBER", "OLA", "METRO", "FUEL", "PETROL", "USER_TRAVEL", "CAB", "TAXI"]):
         return SpendCategory.TRANSPORT
-    if any(k in desc for k in ["BILL", "ELECTRICITY", "RECHARGE", "WIFI", "POWER"]):
+    if any(k in combined for k in ["BILL", "ELECTRICITY", "RECHARGE", "WIFI", "POWER", "WATER", "GAS", "RENT"]):
         return SpendCategory.UTILITIES
-    if any(k in desc for k in ["MOVIE", "NETFLIX", "GAME", "ENTERTAINMENT"]):
+    if any(k in combined for k in ["MOVIE", "NETFLIX", "GAME", "ENTERTAINMENT", "PRIME", "SPOTIFY"]):
         return SpendCategory.ENTERTAINMENT
-    if any(k in desc for k in ["PHARMACY", "DOCTOR", "HOSPITAL", "MEDICINE"]):
+    if any(k in combined for k in ["PHARMACY", "DOCTOR", "HOSPITAL", "MEDICINE", "CLINIC"]):
         return SpendCategory.HEALTH
-    if any(k in desc for k in ["TRANSFER", "SEND", "P2P"]):
+    if any(k in combined for k in ["TRANSFER", "SEND", "P2P", "UPI", "PAYMENT", "@PPAY"]):
+        return SpendCategory.TRANSFER
+
+    if not merchant_id and receiver_id:
         return SpendCategory.TRANSFER
 
     return SpendCategory.OTHER

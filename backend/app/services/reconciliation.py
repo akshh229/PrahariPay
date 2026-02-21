@@ -171,7 +171,9 @@ def reconcile_transaction(transaction, db: Session) -> dict:
     # Categorize transaction (AI Spend Analyzer)
     # Using invoice_id as proxy for description if available
     category = categorize_transaction(
-        transaction.invoice_id, transaction.merchant_id
+        transaction.invoice_id,
+        transaction.merchant_id,
+        transaction.receiver_id,
     )
 
     # Persist the transaction

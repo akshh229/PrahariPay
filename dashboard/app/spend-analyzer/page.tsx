@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   fetchConfidenceScore,
+  fetchLedger,
   fetchProfile,
   fetchSpendAnalysis,
   fetchAIInsights,
@@ -30,6 +31,50 @@ interface SpendSummary {
   trend_direction: string;
   breakdown: CategoryBreakdown[];
 }
+
+interface TimeBucket {
+  label: string;
+  amount: number;
+}
+
+const buildSpendTimeSeries = (
+  transactions: Array<{ sender_id: string; amount: number; timestamp: string }>,
+  userId: string,
+  period: "daily" | "weekly" | "monthly"
+): TimeBucket[] => {
+  const now = new Date();
+  const nowMs = now.getTime();
+
+  const cfg =
+    period === "daily"
+      ? { bucketCount: 6, totalMs: 24 * 60 * 60 * 1000 }
+      : period === "weekly"
+      ? { bucketCount: 7, totalMs: 7 * 24 * 60 * 60 * 1000 }
+      : { bucketCount: 6, totalMs: 30 * 24 * 60 * 60 * 1000 };
+
+  const startMs = nowMs - cfg.totalMs;
+  const bucketMs = cfg.totalMs / cfg.bucketCount;
+
+  const labels = Array.from({ length: cfg.bucketCount }, (_, i) => {
+    const d = new Date(startMs + i * bucketMs);
+    if (period === "daily") return `${d.getHours().toString().padStart(2, "0")}:00`;
+    if (period === "weekly") return d.toLocaleDateString(undefined, { weekday: "short" });
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  });
+
+  const amounts = new Array<number>(cfg.bucketCount).fill(0);
+
+  transactions
+    .filter((tx) => tx.sender_id === userId)
+    .forEach((tx) => {
+      const ts = new Date(tx.timestamp).getTime();
+      if (!Number.isFinite(ts) || ts < startMs || ts > nowMs) return;
+      const idx = Math.min(cfg.bucketCount - 1, Math.floor((ts - startMs) / bucketMs));
+      amounts[idx] += Number(tx.amount || 0);
+    });
+
+  return labels.map((label, i) => ({ label, amount: amounts[i] }));
+};
 
 const CATEGORY_COLORS: Record<string, string> = {
   FOOD: "#e56a00",
@@ -61,6 +106,7 @@ export default function SpendAnalyzerPage() {
   const [confidenceAuthRequired, setConfidenceAuthRequired] = useState<boolean>(false);
   const [confidenceError, setConfidenceError] = useState<boolean>(false);
   const [loanDrawerOpen, setLoanDrawerOpen] = useState<boolean>(false);
+  const [timeSeries, setTimeSeries] = useState<TimeBucket[]>([]);
   const seedAttemptedRef = useRef<boolean>(false);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("monthly");
   const [budgets] = useState<Record<string, number>>({});
@@ -111,15 +157,17 @@ export default function SpendAnalyzerPage() {
           setSummary(analysis.summary);
         }
 
-        const [sumData, confidenceData, insightsData] = await Promise.all([
+        const [sumData, confidenceData, insightsData, ledgerData] = await Promise.all([
           fetchSpendSummary(userId, period),
           fetchConfidenceScore(userId, 6),
           fetchAIInsights(userId, period),
+          fetchLedger(userId),
         ]);
 
         let finalSummary = sumData || analysis?.summary || null;
         let finalConfidence = confidenceData;
         let finalInsights = insightsData;
+        let finalLedger = ledgerData;
 
         const isSummaryEmpty = !finalSummary || finalSummary.total_amount <= 0;
         const hasToken = typeof window !== "undefined" && Boolean(localStorage.getItem("access_token"));
@@ -127,18 +175,21 @@ export default function SpendAnalyzerPage() {
           const seedRes = await seedDemoActivityForUser(userId, 24);
           seedAttemptedRef.current = true;
           if (seedRes?.created_count && seedRes.created_count > 0) {
-            const [seededSummary, seededConfidence, seededInsights] = await Promise.all([
+            const [seededSummary, seededConfidence, seededInsights, seededLedger] = await Promise.all([
               fetchSpendSummary(userId, period),
               fetchConfidenceScore(userId, 6),
               fetchAIInsights(userId, period),
+              fetchLedger(userId),
             ]);
             finalSummary = seededSummary || finalSummary;
             finalConfidence = seededConfidence || finalConfidence;
             finalInsights = seededInsights || finalInsights;
+            finalLedger = seededLedger || finalLedger;
           }
         }
 
         setSummary(finalSummary);
+        setTimeSeries(buildSpendTimeSeries(finalLedger?.transactions || [], userId, period));
         setConfidenceScore(finalConfidence);
         setAiInsights(finalInsights?.insights ?? []);
         if (!finalConfidence) {
@@ -172,7 +223,8 @@ export default function SpendAnalyzerPage() {
     return `conic-gradient(${stops.join(", ")})`;
   };
 
-  const breakdownCount = summary?.breakdown?.length || 0;
+  const breakdownCount = timeSeries.length;
+  const maxSeriesAmount = Math.max(...timeSeries.map((point) => point.amount), 0);
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -237,22 +289,22 @@ export default function SpendAnalyzerPage() {
                   breakdownCount <= 2 ? "justify-center" : ""
                 }`}
               >
-                {(summary?.breakdown || []).map((cat, i) => (
+                {timeSeries.map((point, i) => (
                   <div key={i} className="min-w-[72px] max-w-[96px] w-full flex flex-col items-center gap-1">
-                    <span className="text-[10px] text-[var(--color-text-secondary)]">₹{cat.amount.toFixed(0)}</span>
+                    <span className="text-[10px] text-[var(--color-text-secondary)]">₹{point.amount.toFixed(0)}</span>
                     <div
                       className="w-full rounded-t-md transition-all hover:scale-y-105 origin-bottom"
                       style={{
-                        height: `${Math.max(8, (cat.percentage / 100) * 140)}px`,
-                        backgroundColor: CATEGORY_COLORS[cat.category] || "#64748b",
+                        height: `${Math.max(8, maxSeriesAmount > 0 ? (point.amount / maxSeriesAmount) * 140 : 0)}px`,
+                        backgroundColor: "#a39b8b",
                       }}
                     />
                     <span className="text-[9px] text-[var(--color-text-muted)] truncate w-full text-center">
-                      {(CATEGORY_LABELS[cat.category] || cat.category).slice(0, 6)}
+                      {point.label}
                     </span>
                   </div>
                 ))}
-                {(!summary?.breakdown || summary.breakdown.length === 0) && (
+                {timeSeries.length === 0 && (
                   <div className="flex-1 flex items-center justify-center text-sm text-[var(--color-text-muted)]">
                     No spend data yet
                   </div>

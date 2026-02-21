@@ -20,6 +20,7 @@ def test_categorize_transaction():
     assert categorize_transaction("Apollo Pharmacy") == SpendCategory.HEALTH
     assert categorize_transaction("Transfer to Bob") == SpendCategory.TRANSFER
     assert categorize_transaction("Unknown Vendor") == SpendCategory.OTHER
+    assert categorize_transaction(None, None, "user_b") == SpendCategory.TRANSFER
 
 class TestSpendAnalyzer:
     def test_compute_spend_summary_empty(self, db_session):
